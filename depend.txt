@@ -1,0 +1,7 @@
+PyGithub
+python-dateutil
+requests
+beautifulsoup4
+datetime
+sys
+urllib3
