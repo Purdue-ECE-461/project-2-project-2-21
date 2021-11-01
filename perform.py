@@ -22,9 +22,15 @@ def perform(urls, url_file):
     log_file = os.getenv("LOG_FILE")
     log_level = os.getenv("LOG_LEVEL")
     if log_level == "2":
-        logging.basicConfig(filename=log_file, filemode="w", level=logging.DEBUG)
+        logging.basicConfig(
+            filename=log_file,
+            filemode="w",
+            level=logging.DEBUG)
     elif log_level == "1":
-        logging.basicConfig(filename=log_file, filemode="w", level=logging.INFO)
+        logging.basicConfig(
+            filename=log_file,
+            filemode="w",
+            level=logging.INFO)
     gtoken = os.getenv("GITHUB_TOKEN")
     git = Github(gtoken)
     if gtoken is None:
@@ -101,7 +107,7 @@ def Responsiveness(git, url, testing=False):
     responsiveness_score = 0
     try:
         repo = git.get_repo(url)
-    except:
+    except BaseException:
         if testing:
             return 0
     if git is None:
@@ -143,7 +149,7 @@ def Responsiveness(git, url, testing=False):
         responsiveness_score = (pullrequest_ratio * 0.5) + (issue_ratio * 0.5)
         logging.info("Responsiveness score calculation success")
 
-    except:
+    except BaseException:
         logging.error("Repository API call unsuccessful")
         pass
 
@@ -157,7 +163,7 @@ def Responsiveness(git, url, testing=False):
 def getLicense(git, url, testing=False):
     try:
         grepo = git.get_repo(url)
-    except:
+    except BaseException:
         if testing:
             return 0
         print("Invalid repository")
@@ -172,28 +178,29 @@ def getLicense(git, url, testing=False):
 
         lic = base64.b64decode(grepo.get_license().content.encode()).decode()
 
-        if lic != None:
-            mitlic = re.search("(\w+) License", lic).group(0)
-            if mitlic != None:
+        if lic is not None:
+            mitlic = re.search("(\\w+) License", lic).group(0)
+            if mitlic is not None:
                 logging.info("LICENSE file found")
                 licensed = 1
 
-    except:
+    except BaseException:
         logging.info("LICENSE file not found")
         logging.info("searching for README...")
         try:
-            readme = base64.b64decode(grepo.get_readme().content.encode()).decode()
-            if readme != None:
+            readme = base64.b64decode(
+                grepo.get_readme().content.encode()).decode()
+            if readme is not None:
                 logging.info("README file found")
-                licensed = re.search("(\w+) license", readme).group(0)
-                if licensed != None:
+                licensed = re.search("(\\w+) license", readme).group(0)
+                if licensed is not None:
                     licensed = 1
 
-        except:
+        except BaseException:
             pass
 
     finally:
-        if licensed != None:
+        if licensed is not None:
             License_score = 1
             logging.info("LGPL compatible License found")
             # print(f"License score: {License_score}")
@@ -208,7 +215,7 @@ def calculate_ramp_up(git, url, testing=False):
     score = 0
     try:
         repo = git.get_repo(url)
-    except:
+    except BaseException:
         if testing:
             return 0
         print("Invalid Repository")
@@ -222,8 +229,13 @@ def calculate_ramp_up(git, url, testing=False):
 
     # find largest file
     repo_dir = os.getcwd() + "/" + directory
-    filter_obj = filter(os.path.isfile, glob.glob(repo_dir + "/*", recursive=True))
-    # above line taken from https://thispointer.com/python-find-the-largest-file-in-a-directory/
+    filter_obj = filter(
+        os.path.isfile,
+        glob.glob(
+            repo_dir + "/*",
+            recursive=True))
+    # above line taken from
+    # https://thispointer.com/python-find-the-largest-file-in-a-directory/
     files = [file for file in filter_obj]
     if len(files) < 1:
         os.system(delete_clone_command)
@@ -264,7 +276,7 @@ def calculate_ramp_up(git, url, testing=False):
             score += 0.7
         else:
             score += 0.7 * (lines / 500)
-    except:
+    except BaseException:
         pass
 
     return round(score, 1)
@@ -273,7 +285,7 @@ def calculate_ramp_up(git, url, testing=False):
 def calculate_correctness(g, url, testing=False):
     try:
         repo = g.get_repo(url)
-    except:
+    except BaseException:
         if testing:
             return 0
         print("Invalid Repository")
@@ -298,7 +310,7 @@ def calculate_correctness(g, url, testing=False):
             score += 0.2
         else:
             score += 0.2 * (lines / 1000)
-    except:
+    except BaseException:
         pass
 
     # num pull requests in past 6 months
@@ -319,7 +331,7 @@ def busfactor(g, url, testing=False):
     score = 0
     try:
         repo = g.get_repo(url)
-    except:
+    except BaseException:
         if testing:
             return 0
         print("Invalid Repository")
@@ -350,7 +362,7 @@ def busfactor(g, url, testing=False):
             score = float(numc) / 40
 
         return score
-    except:
+    except BaseException:
         pass
 
     return round(score, 1)

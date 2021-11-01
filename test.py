@@ -1,4 +1,6 @@
-import time, os, sys
+import time
+import os
+import sys
 from github import Github
 from perform import (
     calculate_correctness,

@@ -3,6 +3,8 @@ import os
 # have file called depend.txt
 # contains all the dependencies needed to install
 # go through each dependency and pip install each one using os.system()
+
+
 def install():
     print("Installing dependencies...")
     filename = "depend.txt"
