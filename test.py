@@ -1,10 +1,16 @@
 import time, os, sys
 from github import Github
-from perform import calculate_correctness, calculate_ramp_up, busfactor, Responsiveness, getLicense
+from perform import (
+    calculate_correctness,
+    calculate_ramp_up,
+    busfactor,
+    Responsiveness,
+    getLicense,
+)
 
 
 def test():
-    gtoken = os.getenv('GITHUB_TOKEN')
+    gtoken = os.getenv("GITHUB_TOKEN")
     if gtoken is None:
         print("No Github Token set in environment")
         sys.exit(1)
@@ -39,7 +45,15 @@ def test():
     print("Total: " + str(NUM_TESTS))
     print("Passed: " + str(num_passed))
     print("Coverage: " + str(round(percent)) + "%")
-    print(str(num_passed) + "/" + str(NUM_TESTS) + " tests passed. " + str(round(percent)) + "%" + " line coverage achieved.")
+    print(
+        str(num_passed)
+        + "/"
+        + str(NUM_TESTS)
+        + " tests passed. "
+        + str(round(percent))
+        + "%"
+        + " line coverage achieved."
+    )
 
 
 def test0(g):
@@ -53,6 +67,7 @@ def test0(g):
         return 1
     return 0
 
+
 def test1(g):
     """
     unit test for ramp-up:
@@ -61,8 +76,9 @@ def test1(g):
     url = "VikramSrivastava1729/dummy"
     score = calculate_ramp_up(g, url)
     if score < 0.5:
-        return 1 
+        return 1
     return 0
+
 
 def test2(g):
     """
@@ -77,6 +93,7 @@ def test2(g):
         return 0
     return 1
 
+
 def test3(g):
     """
     unit test for ramp-up:
@@ -87,6 +104,7 @@ def test3(g):
     if returnval == 0:
         return 1
     return 0
+
 
 def test4(g):
     """
@@ -99,6 +117,7 @@ def test4(g):
         return 1
     return 0
 
+
 def test5(g):
     """
     unit test for correctness:
@@ -109,6 +128,7 @@ def test5(g):
     if score < 0.5:
         return 1
     return 0
+
 
 def test6(g):
     """
@@ -123,6 +143,7 @@ def test6(g):
         return 0
     return 1
 
+
 def test7(g):
     """
     unit test for correctness:
@@ -134,16 +155,18 @@ def test7(g):
         return 1
     return 0
 
+
 def test8(g):
     """
     unit test for busfactor:
-        ensure that it gives a good score (greater than 10 contributions or 0.25 score) to cloudinary as seen on the github repository insights 
+        ensure that it gives a good score (greater than 10 contributions or 0.25 score) to cloudinary as seen on the github repository insights
     """
     url = "cloudinary/cloudinary_npm"
     score = busfactor(g, url)
     if score > 0.25:
         return 1
     return 0
+
 
 def test9(g):
     """
@@ -158,6 +181,7 @@ def test9(g):
         return 0
     return 1
 
+
 def test10(g):
     """
     unit test for busfactor:
@@ -168,6 +192,7 @@ def test10(g):
     if returnval == 0:
         return 1
     return 0
+
 
 def test11(g):
     """
@@ -180,6 +205,7 @@ def test11(g):
         return 1
     return 0
 
+
 def test12(g):
     """
     unit test for Responsiveness:
@@ -191,6 +217,7 @@ def test12(g):
         return 1
     return 0
 
+
 def test13(g):
     """
     unit test for Responsiveness:
@@ -199,8 +226,9 @@ def test13(g):
     url = "VikramSrivastava1729/dummy"
     score = Responsiveness(g, url)
     if score < 0.5:
-        return 1 
+        return 1
     return 0
+
 
 def test14(g):
     """
@@ -215,6 +243,7 @@ def test14(g):
         return 0
     return 1
 
+
 def test15(g):
     """
     unit test for Responsiveness:
@@ -225,6 +254,7 @@ def test15(g):
     if returnval == 0:
         return 1
     return 0
+
 
 def test16(g):
     """
@@ -237,6 +267,7 @@ def test16(g):
         return 1
     return 0
 
+
 def test17(g):
     """
     unit test for License score:
@@ -245,8 +276,9 @@ def test17(g):
     url = "VikramSrivastava1729/dummy"
     score = getLicense(g, url)
     if score < 0.5:
-        return 1 
+        return 1
     return 0
+
 
 def test18(g):
     """
@@ -260,6 +292,7 @@ def test18(g):
     if length > 30:
         return 0
     return 1
+
 
 def test19(g):
     """

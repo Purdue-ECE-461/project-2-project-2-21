@@ -18,5 +18,3 @@ def install():
 
     f.close()
     print(str(num_d) + " dependencies installed")
-
-
