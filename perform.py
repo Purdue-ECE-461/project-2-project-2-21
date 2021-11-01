@@ -1,17 +1,14 @@
 from urllib.parse import urlparse
+import logging
+import glob
+from datetime import date, datetime, timedelta
 import requests
-from github import Github
-from github import GithubException
+from github import Github, GithubException, License
 import re
-from github import License
 import os
-from datetime import datetime, timedelta
 import base64
 from bs4 import BeautifulSoup
-import logging
 import sys
-import glob
-from datetime import date
 from dateutil.relativedelta import *
 
 # os.environ["$LOG_FILE"] = "1"
