@@ -1,37 +1,45 @@
-import time, os, sys
+import time
+import os
+import sys
 from github import Github
-from perform import calculate_correctness, calculate_ramp_up, busfactor, Responsiveness, getLicense
+from perform import (
+    calculate_correctness,
+    calculate_ramp_up,
+    busfactor,
+    Responsiveness,
+    getLicense,
+)
 
 
 def test():
-    gtoken = os.getenv('GITHUB_TOKEN')
+    gtoken = os.getenv("GITHUB_TOKEN")
     if gtoken is None:
         print("No Github Token set in environment")
         sys.exit(1)
-    g = Github(gtoken)
+    github = Github(gtoken)
 
     NUM_TESTS = 20
     passed_array = [0] * NUM_TESTS
-    passed_array[0] = test0(g)
-    passed_array[1] = test1(g)
-    passed_array[2] = test2(g)
-    passed_array[3] = test3(g)
-    passed_array[4] = test4(g)
-    passed_array[5] = test5(g)
-    passed_array[6] = test6(g)
-    passed_array[7] = test7(g)
-    passed_array[8] = test8(g)
-    passed_array[9] = test9(g)
-    passed_array[10] = test10(g)
-    passed_array[11] = test11(g)
-    passed_array[12] = test12(g)
-    passed_array[13] = test13(g)
-    passed_array[14] = test14(g)
-    passed_array[15] = test15(g)
-    passed_array[16] = test16(g)
-    passed_array[17] = test17(g)
-    passed_array[18] = test18(g)
-    passed_array[19] = test19(g)
+    passed_array[0] = test0(github)
+    passed_array[1] = test1(github)
+    passed_array[2] = test2(github)
+    passed_array[3] = test3(github)
+    passed_array[4] = test4(github)
+    passed_array[5] = test5(github)
+    passed_array[6] = test6(github)
+    passed_array[7] = test7(github)
+    passed_array[8] = test8(github)
+    passed_array[9] = test9(github)
+    passed_array[10] = test10(github)
+    passed_array[11] = test11(github)
+    passed_array[12] = test12(github)
+    passed_array[13] = test13(github)
+    passed_array[14] = test14(github)
+    passed_array[15] = test15(github)
+    passed_array[16] = test16(github)
+    passed_array[17] = test17(github)
+    passed_array[18] = test18(github)
+    passed_array[19] = test19(github)
 
     num_passed = sum(passed_array)
     percent = num_passed / NUM_TESTS * 100
@@ -39,43 +47,54 @@ def test():
     print("Total: " + str(NUM_TESTS))
     print("Passed: " + str(num_passed))
     print("Coverage: " + str(round(percent)) + "%")
-    print(str(num_passed) + "/" + str(NUM_TESTS) + " tests passed. " + str(round(percent)) + "%" + " line coverage achieved.")
+    print(
+        str(num_passed)
+        + "/"
+        + str(NUM_TESTS)
+        + " tests passed. "
+        + str(round(percent))
+        + "%"
+        + " line coverage achieved."
+    )
 
 
-def test0(g):
+def test0(github):
     """
     unit test for ramp-up:
         ensure that it gives a good score (>=0.5) to jQuery
     """
     url = "jquery/jquery"
-    ramp_up_score = calculate_ramp_up(g, url)
+    ramp_up_score = calculate_ramp_up(github, url)
     if ramp_up_score >= 0.5:
         return 1
     return 0
 
-def test1(g):
+
+def test1(github):
     """
     unit test for ramp-up:
         ensure that it gives a bad score (<0.5) to a dummy project
     """
     url = "VikramSrivastava1729/dummy"
-    score = calculate_ramp_up(g, url)
+    score = calculate_ramp_up(github, url)
     if score < 0.5:
-        return 1 
+        return 1
     return 0
 
-def test2(g):
+
+def test2(github):
     """
     unit test for ramp-up:
         ensure that it takes no more than 15 seconds for a large repo (express)
     """
     url = "expressjs/express"
     start = time.time()
-    calculate_ramp_up(g, url)
+    calculate_ramp_up(github, url)
     length = time.time() - start
     if length > 15:
         return 0
     return 1
+
 
 def test3(g):
     """
@@ -88,42 +107,46 @@ def test3(g):
         return 1
     return 0
 
-def test4(g):
+
+def test4(github):
     """
     unit test for correctness:
         ensure that it gives a good score (>=0.5) to jQuery
     """
     url = "jquery/jquery"
-    correctness_score = calculate_correctness(g, url)
+    correctness_score = calculate_correctness(github, url)
     if correctness_score >= 0.5:
         return 1
     return 0
 
-def test5(g):
+
+def test5(github):
     """
     unit test for correctness:
         ensure that it gives a low score to a dummy repository
     """
     url = "VikramSrivastava1729/dummy"
-    score = calculate_correctness(g, url)
+    score = calculate_correctness(github, url)
     if score < 0.5:
         return 1
     return 0
 
-def test6(g):
+
+def test6(github):
     """
     unit test for correctness:
         ensure it takes no more than 45 seconds for a large repo (express)
     """
     url = "expressjs/express"
     start = time.time()
-    calculate_correctness(g, url)
+    calculate_correctness(github, url)
     length = time.time() - start
     if length > 45:
         return 0
     return 1
 
-def test7(g):
+
+def test7(github):
     """
     unit test for correctness:
         ensure that under failure, process exits
@@ -134,140 +157,152 @@ def test7(g):
         return 1
     return 0
 
-def test8(g):
+
+def test8(github):
     """
     unit test for busfactor:
-        ensure that it gives a good score (greater than 10 contributions or 0.25 score) to cloudinary as seen on the github repository insights 
+        ensure that it gives a good score (greater than 10 contributions or 0.25 score) to cloudinary as seen on the github repository insights
     """
     url = "cloudinary/cloudinary_npm"
-    score = busfactor(g, url)
+    score = busfactor(github, url)
     if score > 0.25:
         return 1
     return 0
 
-def test9(g):
+
+def test9(github):
     """
     unit test for busfactor:
         ensure that it takes no more than 15 seconds for a large repo (public-apis)
     """
     url = "public-apis/public-apis"
     start = time.time()
-    busfactor(g, url)
+    busfactor(github, url)
     length = time.time() - start
     if length > 15:
         return 0
     return 1
 
-def test10(g):
+
+def test10(github):
     """
     unit test for busfactor:
         ensure that under failure, the process exits
     """
     url = "fake_url"
-    returnval = busfactor(g, url, True)
+    returnval = busfactor(github, url, True)
     if returnval == 0:
         return 1
     return 0
 
-def test11(g):
+
+def test11(github):
     """
     unit test for busfactor:
         ensure that it gives a bad score (< 0.1) to lodash
     """
     url = "nullivex/nodist"
-    score = busfactor(g, url)
+    score = busfactor(github, url)
     if score < 0.1:
         return 1
     return 0
 
-def test12(g):
+
+def test12(github):
     """
     unit test for Responsiveness:
         ensure that it gives a good score (>=0.5) to jQuery
     """
     url = "jquery/jquery"
-    ramp_up_score = Responsiveness(g, url)
+    ramp_up_score = Responsiveness(github, url)
     if ramp_up_score >= 0.5:
         return 1
     return 0
 
-def test13(g):
+
+def test13(github):
     """
     unit test for Responsiveness:
         ensure that it gives a bad score (<0.5) to a dummy project
     """
     url = "VikramSrivastava1729/dummy"
-    score = Responsiveness(g, url)
+    score = Responsiveness(github, url)
     if score < 0.5:
-        return 1 
+        return 1
     return 0
 
-def test14(g):
+
+def test14(github):
     """
     unit test for Responsiveness:
         ensure that it takes no more than 30 seconds for a large repo (express)
     """
     url = "expressjs/express"
     start = time.time()
-    Responsiveness(g, url)
+    Responsiveness(github, url)
     length = time.time() - start
     if length > 30:
         return 0
     return 1
 
-def test15(g):
+
+def test15(github):
     """
     unit test for Responsiveness:
         ensure that under failure, the process exits
     """
     url = "fake_url"
-    returnval = Responsiveness(g, url, True)
+    returnval = Responsiveness(github, url, True)
     if returnval == 0:
         return 1
     return 0
 
-def test16(g):
+
+def test16(github):
     """
     unit test for License score:
         ensure that it gives a good score (>=0.5) to jQuery
     """
     url = "jquery/jquery"
-    ramp_up_score = getLicense(g, url)
+    ramp_up_score = getLicense(github, url)
     if ramp_up_score >= 0.5:
         return 1
     return 0
 
-def test17(g):
+
+def test17(github):
     """
     unit test for License score:
         ensure that it gives a bad score (<0.5) to a dummy project
     """
     url = "VikramSrivastava1729/dummy"
-    score = getLicense(g, url)
+    score = getLicense(github, url)
     if score < 0.5:
-        return 1 
+        return 1
     return 0
 
-def test18(g):
+
+def test18(github):
     """
     unit test for License score:
         ensure that it takes no more than 30 seconds for a large repo (express)
     """
     url = "expressjs/express"
     start = time.time()
-    getLicense(g, url)
+    getLicense(github, url)
     length = time.time() - start
     if length > 30:
         return 0
     return 1
 
-def test19(g):
+
+def test19(github):
     """
     unit test for License score:
         ensure that under failure, the process exits
     """
     url = "fake_url"
-    returnval = getLicense(g, url, True)
+    returnval = getLicense(github, url, True)
     if returnval == 0:
         return 1
     return 0
