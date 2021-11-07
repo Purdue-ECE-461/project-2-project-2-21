@@ -12,14 +12,17 @@ from perform import (
 
 
 def test():
+    """
+    Performs all tests in testing environment
+    """
     gtoken = os.getenv("GITHUB_TOKEN")
     if gtoken is None:
         print("No Github Token set in environment")
         sys.exit(1)
     github = Github(gtoken)
 
-    NUM_TESTS = 20
-    passed_array = [0] * NUM_TESTS
+    num_tests = 20
+    passed_array = [0] * num_tests
     passed_array[0] = test0(github)
     passed_array[1] = test1(github)
     passed_array[2] = test2(github)
@@ -42,15 +45,15 @@ def test():
     passed_array[19] = test19(github)
 
     num_passed = sum(passed_array)
-    percent = num_passed / NUM_TESTS * 100
+    percent = num_passed / num_tests * 100
 
-    print("Total: " + str(NUM_TESTS))
+    print("Total: " + str(num_tests))
     print("Passed: " + str(num_passed))
     print("Coverage: " + str(round(percent)) + "%")
     print(
         str(num_passed)
         + "/"
-        + str(NUM_TESTS)
+        + str(num_tests)
         + " tests passed. "
         + str(round(percent))
         + "%"
@@ -96,13 +99,13 @@ def test2(github):
     return 1
 
 
-def test3(g):
+def test3(github):
     """
     unit test for ramp-up:
         ensure that under failure, the process exits
     """
     url = "fake_url"
-    returnval = calculate_ramp_up(g, url, True)
+    returnval = calculate_ramp_up(github, url, True)
     if returnval == 0:
         return 1
     return 0
@@ -152,7 +155,7 @@ def test7(github):
         ensure that under failure, process exits
     """
     url = "fake_url"
-    returnval = calculate_correctness(g, url, True)
+    returnval = calculate_correctness(github, url, True)
     if returnval == 0:
         return 1
     return 0
@@ -161,7 +164,8 @@ def test7(github):
 def test8(github):
     """
     unit test for busfactor:
-        ensure that it gives a good score (greater than 10 contributions or 0.25 score) to cloudinary as seen on the github repository insights
+        ensure that it gives a good score (greater than 10 contributions
+        or 0.25 score) to cloudinary as seen on thegithub repository insights
     """
     url = "cloudinary/cloudinary_npm"
     score = busfactor(github, url)

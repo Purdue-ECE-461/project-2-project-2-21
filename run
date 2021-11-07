@@ -1,18 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import sys
-from install import *
-from test import *
-from perform import *
+import test
+import install
+import perform
 
 if len(sys.argv) == 2:
     if sys.argv[1] == "install":
-        install()
+        install.install()
     elif sys.argv[1] == "test":
-        test()
+        test.test()
     else:
-        urls = parse(sys.argv[1])
-        perform(urls, sys.argv[1])
+        urls = perform.parse(sys.argv[1])
+        perform.performperform(urls, sys.argv[1])
 else:
     print("Incorrect number of arguments")
     sys.exit(1)

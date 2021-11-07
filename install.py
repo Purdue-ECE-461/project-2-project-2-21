@@ -6,17 +6,20 @@ import os
 
 
 def install():
+    """
+    Installs all dependencies listed in depend.txt file
+    """
     print("Installing dependencies...")
     filename = "depend.txt"
     num_d = 0
 
-    with open(filename, "r") as f:
-        dependencies = f.read().splitlines()
+    with open(filename, "r", encoding='UTF-8') as file:
+        dependencies = file.read().splitlines()
         num_d = len(dependencies)
-        for d in dependencies:
-            command = "pip install --user " + str(d)
+        for dep in dependencies:
+            command = "pip3 install --user " + str(dep)
             # print(command)
             os.system(command)
 
-    f.close()
+    file.close()
     print(str(num_d) + " dependencies installed")
