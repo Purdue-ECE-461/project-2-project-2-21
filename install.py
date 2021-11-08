@@ -1,3 +1,5 @@
+"""Installs the dependencies of the project."""
+
 import os
 
 # have file called depend.txt

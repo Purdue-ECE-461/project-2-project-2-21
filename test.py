@@ -1,3 +1,5 @@
+"""Tests the overall functionality of the scoring functions."""
+
 import time
 import os
 import sys
@@ -6,8 +8,8 @@ from perform import (
     calculate_correctness,
     calculate_ramp_up,
     busfactor,
-    Responsiveness,
-    getLicense,
+    get_responsiveness_score,
+    get_license_score,
 )
 
 
@@ -218,7 +220,7 @@ def test12(github):
         ensure that it gives a good score (>=0.5) to jQuery
     """
     url = "jquery/jquery"
-    ramp_up_score = Responsiveness(github, url)
+    ramp_up_score = get_responsiveness_score(github, url)
     if ramp_up_score >= 0.5:
         return 1
     return 0
@@ -230,7 +232,7 @@ def test13(github):
         ensure that it gives a bad score (<0.5) to a dummy project
     """
     url = "VikramSrivastava1729/dummy"
-    score = Responsiveness(github, url)
+    score = get_responsiveness_score(github, url)
     if score < 0.5:
         return 1
     return 0
@@ -243,7 +245,7 @@ def test14(github):
     """
     url = "expressjs/express"
     start = time.time()
-    Responsiveness(github, url)
+    get_responsiveness_score(github, url)
     length = time.time() - start
     if length > 30:
         return 0
@@ -256,7 +258,7 @@ def test15(github):
         ensure that under failure, the process exits
     """
     url = "fake_url"
-    returnval = Responsiveness(github, url, True)
+    returnval = get_responsiveness_score(github, url, True)
     if returnval == 0:
         return 1
     return 0
@@ -268,7 +270,7 @@ def test16(github):
         ensure that it gives a good score (>=0.5) to jQuery
     """
     url = "jquery/jquery"
-    ramp_up_score = getLicense(github, url)
+    ramp_up_score = get_license_score(github, url)
     if ramp_up_score >= 0.5:
         return 1
     return 0
@@ -280,7 +282,7 @@ def test17(github):
         ensure that it gives a bad score (<0.5) to a dummy project
     """
     url = "VikramSrivastava1729/dummy"
-    score = getLicense(github, url)
+    score = get_license_score(github, url)
     if score < 0.5:
         return 1
     return 0
@@ -293,7 +295,7 @@ def test18(github):
     """
     url = "expressjs/express"
     start = time.time()
-    getLicense(github, url)
+    get_license_score(github, url)
     length = time.time() - start
     if length > 30:
         return 0
@@ -306,7 +308,7 @@ def test19(github):
         ensure that under failure, the process exits
     """
     url = "fake_url"
-    returnval = getLicense(github, url, True)
+    returnval = get_license_score(github, url, True)
     if returnval == 0:
         return 1
     return 0

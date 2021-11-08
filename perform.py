@@ -1,21 +1,23 @@
-from urllib.parse import urlparse
+"""This module performs individual and overall scoring for a 3"""
+
 import logging
 import glob
 from datetime import date, datetime, timedelta
-import requests
-from github import Github, GithubException, License
 import re
 import os
 import base64
-from bs4 import BeautifulSoup
 import sys
-from dateutil.relativedelta import *
+import requests
+from github import Github, GithubException
+from bs4 import BeautifulSoup
+from dateutil.relativedelta import relativedelta
 
 # os.environ["$LOG_FILE"] = "1"
 # os.environ["GITHUB_TOKEN"] = "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"
 
 
 def perform(urls, url_file):
+    """Perform scoring for the given urls"""
     log_file = os.getenv("LOG_FILE")
     log_level = os.getenv("LOG_LEVEL")
     if log_level == "2":
@@ -34,26 +36,36 @@ def perform(urls, url_file):
         print("No Github token specified in environment")
         sys.exit(1)
 
-    f = open(url_file)
-    raw_url_list = f.read().splitlines()
-    print(
-        "URL NET_SCORE RAMP_UP_SCORE CORRECTNESS_SCORE BUS_FACTOR_SCORE RESPONSIVE_MAINTAINER_SCORE LICENSE_SCORE"
-    )
+    with open(url_file, encoding='utf-8', mode='r') as file:
+        raw_url_list = file.read().splitlines()
+
+    column_values = [
+        'URL',
+        'NET_SCORE',
+        'RAMP_UP_SCORE',
+        'CORRECTNESS_SCORE',
+        'BUS_FACTOR_SCORE',
+        'RESPONSIVE_MAINTAINER_SCORE',
+        'LICENSE_SCORE'
+    ]
+
+    print(*column_values, sep=' ')
+
     for i in range(len(urls)):
         url = urls[i]
         raw_url = raw_url_list[i]
 
         logging.info("Responsiveness calculation started..")
-        Responsiveness_score = Responsiveness(git, url)
+        responsiveness_score = get_responsiveness_score(git, url)
         logging.info("Responsiveness score calculation success")
-        License_score = getLicense(git, url)
+        license_score = get_license_score(git, url)
         logging.info("License score calculation success")
         ramp_up_score = calculate_ramp_up(git, url)
         correctness_score = calculate_correctness(git, url)
         bus_factor = busfactor(git, url)
         net_score = netscore(
-            Responsiveness_score,
-            License_score,
+            responsiveness_score,
+            license_score,
             ramp_up_score,
             correctness_score,
             bus_factor,
@@ -69,19 +81,19 @@ def perform(urls, url_file):
             + " "
             + str(bus_factor)
             + " "
-            + str(Responsiveness_score)
+            + str(responsiveness_score)
             + " "
-            + str(License_score)
+            + str(license_score)
         )
 
 
-# URL parser function
 def parse(url_file):
+    """URL parser function"""
     logging.info("Parsing url file")
     # For testing
     # filename = 'Sample Url File.txt'
     urls = []
-    with open(url_file) as file:
+    with open(url_file, encoding='utf-8', mode='r') as file:
         for urll in file.read().splitlines():
             if urll.startswith("https://www.npmjs"):
                 req = requests.get(urll)
@@ -99,19 +111,18 @@ def parse(url_file):
     return urls
 
 
-# Responsiveness score calculation
-def Responsiveness(git, url, testing=False):
+def get_responsiveness_score(git, url, testing=False):
+    """Responsiveness score calculation"""
     responsiveness_score = 0
     try:
         repo = git.get_repo(url)
-    except BaseException:
+    except GithubException:
         if testing:
             return 0
     if git is None:
         print("No Github token specified in environment")
         sys.exit(1)
 
-    errors = []
     issue_ratio = 0
     try:
         logging.info("Repository API call")
@@ -146,9 +157,8 @@ def Responsiveness(git, url, testing=False):
         responsiveness_score = (pullrequest_ratio * 0.5) + (issue_ratio * 0.5)
         logging.info("Responsiveness score calculation success")
 
-    except BaseException:
+    except GithubException:
         logging.error("Repository API call unsuccessful")
-        pass
 
     return round(responsiveness_score, 1)
 
@@ -157,17 +167,18 @@ def Responsiveness(git, url, testing=False):
 # https://towardsdatascience.com/all-the-things-you-can-do-with-github-api-and-python-f01790fca131
 
 
-def getLicense(git, url, testing=False):
+def get_license_score(git, url, testing=False):
+    """Determines the license score of a GitHub repository"""
     try:
         grepo = git.get_repo(url)
-    except BaseException:
+    except GithubException:
         if testing:
             return 0
         print("Invalid repository")
         sys.exit(1)
 
     licensed = None
-    License_score = 0
+    license_score = 0
 
     try:
         logging.info("searching for LICENSE file...")
@@ -181,7 +192,7 @@ def getLicense(git, url, testing=False):
                 logging.info("LICENSE file found")
                 licensed = 1
 
-    except BaseException:
+    except GithubException:
         logging.info("LICENSE file not found")
         logging.info("searching for README...")
         try:
@@ -193,26 +204,27 @@ def getLicense(git, url, testing=False):
                 if licensed is not None:
                     licensed = 1
 
-        except BaseException:
+        except GithubException:
             pass
 
     finally:
         if licensed is not None:
-            License_score = 1
+            license_score = 1
             logging.info("LGPL compatible License found")
             # print(f"License score: {License_score}")
 
-    return License_score
+    return license_score
 
 
 # Reference: https://github.com/PyGithub/PyGithub/pull/734/files#
 
 
 def calculate_ramp_up(git, url, testing=False):
+    """Calculates the ramp-up score for a given repository."""
     score = 0
     try:
         repo = git.get_repo(url)
-    except BaseException:
+    except GithubException:
         if testing:
             return 0
         print("Invalid Repository")
@@ -233,7 +245,7 @@ def calculate_ramp_up(git, url, testing=False):
             recursive=True))
     # above line taken from
     # https://thispointer.com/python-find-the-largest-file-in-a-directory/
-    files = [file for file in filter_obj]
+    files = list(filter_obj)
     if len(files) < 1:
         os.system(delete_clone_command)
         return 0
@@ -245,8 +257,8 @@ def calculate_ramp_up(git, url, testing=False):
             max_size = cur_size
             max_file = file
 
-    fp = open(max_file)
-    file_content = fp.read().splitlines()
+    with open(max_file, encoding='utf-8', mode='r') as file:
+        file_content = file.read().splitlines()
 
     # get commented lines
     total_lines = len(file_content)
@@ -273,16 +285,17 @@ def calculate_ramp_up(git, url, testing=False):
             score += 0.7
         else:
             score += 0.7 * (lines / 500)
-    except BaseException:
-        pass
+    except GithubException as exception:
+        print(exception)
 
     return round(score, 1)
 
 
-def calculate_correctness(g, url, testing=False):
+def calculate_correctness(github, url, testing=False):
+    """Calculates the correctness of a GitHub repository"""
     try:
-        repo = g.get_repo(url)
-    except BaseException:
+        repo = github.get_repo(url)
+    except GithubException:
         if testing:
             return 0
         print("Invalid Repository")
@@ -307,7 +320,7 @@ def calculate_correctness(g, url, testing=False):
             score += 0.2
         else:
             score += 0.2 * (lines / 1000)
-    except BaseException:
+    except GithubException:
         pass
 
     # num pull requests in past 6 months
@@ -323,12 +336,12 @@ def calculate_correctness(g, url, testing=False):
     return round(score, 1)
 
 
-def busfactor(g, url, testing=False):
-
+def busfactor(github, url, testing=False):
+    """Calculates the bus factor score of a repository."""
     score = 0
     try:
-        repo = g.get_repo(url)
-    except BaseException:
+        repo = github.get_repo(url)
+    except GithubException:
         if testing:
             return 0
         print("Invalid Repository")
@@ -359,14 +372,14 @@ def busfactor(g, url, testing=False):
             score = float(numc) / 40
 
         return score
-    except BaseException:
+    except GithubException:
         pass
 
     return round(score, 1)
 
 
 def netscore(responsiveness, licensing, rampup, correctness, busfact):
-
+    """Calculate the net total score using the individual components."""
     # # Set metric values for testing
     # rampup = 1
     # correctness = 1
@@ -375,9 +388,8 @@ def netscore(responsiveness, licensing, rampup, correctness, busfact):
     # licensing = 1
 
     # Licensing is essential
-    score = 0
     if licensing == 0:
-        return
+        return 0
 
     busfact = 0.3 * busfact
     responsiveness = 0.3 * responsiveness
@@ -390,6 +402,7 @@ def netscore(responsiveness, licensing, rampup, correctness, busfact):
 
 
 def main():
+    """Run scoring functionality."""
     urls = parse()
     # Responsiveness(urls)
 
