@@ -20,7 +20,7 @@ def test():
     gtoken = os.getenv("GITHUB_TOKEN")
     if gtoken is None:
         print("No Github Token set in environment")
-        sys.exit(1)
+        return
     github = Github(gtoken)
 
     num_tests = 20

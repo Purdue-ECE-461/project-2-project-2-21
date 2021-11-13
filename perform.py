@@ -34,7 +34,7 @@ def perform(urls, url_file):
     git = Github(gtoken)
     if gtoken is None:
         print("No Github token specified in environment")
-        sys.exit(1)
+        return
 
     with open(url_file, encoding='utf-8', mode='r') as file:
         raw_url_list = file.read().splitlines()
@@ -63,6 +63,9 @@ def perform(urls, url_file):
         ramp_up_score = calculate_ramp_up(git, url)
         correctness_score = calculate_correctness(git, url)
         bus_factor = busfactor(git, url)
+        if responsiveness_score is None or license_score is None or ramp_up_score is None or correctness_score is None \
+                or bus_factor is None:
+            return
         net_score = netscore(
             responsiveness_score,
             license_score,
@@ -106,7 +109,7 @@ def parse(url_file):
                 urls.append(url.rstrip())
             else:
                 print("Invalid URL: " + str(urll))
-                sys.exit(1)
+                return
     logging.info("Parsing url file successful")
     return urls
 
@@ -121,7 +124,7 @@ def get_responsiveness_score(git, url, testing=False):
             return 0
     if git is None:
         print("No Github token specified in environment")
-        sys.exit(1)
+        return
 
     issue_ratio = 0
     try:
@@ -175,7 +178,7 @@ def get_license_score(git, url, testing=False):
         if testing:
             return 0
         print("Invalid repository")
-        sys.exit(1)
+        return
 
     licensed = None
     license_score = 0
@@ -228,7 +231,7 @@ def calculate_ramp_up(git, url, testing=False):
         if testing:
             return 0
         print("Invalid Repository")
-        sys.exit(1)
+        return
     # open largest file of source code, parse line by line for comments, calculate percentage
     # 30% of score
     clone_command = "git clone https://github.com/" + url + ".git" + " -q"
@@ -299,7 +302,7 @@ def calculate_correctness(github, url, testing=False):
         if testing:
             return 0
         print("Invalid Repository")
-        sys.exit(1)
+        return
 
     score = 0
 
@@ -345,7 +348,7 @@ def busfactor(github, url, testing=False):
         if testing:
             return 0
         print("Invalid Repository")
-        sys.exit(1)
+        return
 
     # Find the number of contribuors
     try:
