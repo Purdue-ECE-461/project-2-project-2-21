@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Project 2 Site Testing</title>
+    
+    <link href="{% static 'styles.css' %}" rel="stylesheet" type="text/css" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.1/URI.min.js"></script>
+    <script type="text/javascript" src="ui.js"></script>
+</head>
+
+
+<body>
+    <header>
+        <img src="{% static 'purdue-logo.svg'%}" alt='purdue-logo'>
+        <h1>Project 2 Site Testing</h1>
+    </header>
+    <main>
+        <div class="main-page">
+            <h1 class="main-title">Site Functionality</h1>
+            
+        </div>
+        <div class ="instructions">
+            <p>
+                Please Upload/Download:
+            </p>
+        </div>
+        <div class="package-updown">
+            <button class='button button1'> Upload </button>
+            <button class='button button2'>
+                <a href="{% url 'proj2site:download' %}">Download</a>
+            </button>
+        </div>
+    </main>
+    <footer>
+    
+    </footer>
+</body>
+
+</html>
