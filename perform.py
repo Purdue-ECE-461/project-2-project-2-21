@@ -139,7 +139,7 @@ def get_responsiveness_score(git, url, testing=False):
         closedissues = repo.get_issues(state="closed", since=since)
 
         issue_ratio = len(closedissues.get_page(0)) / (
-            len(openissues.get_page(0)) + len(closedissues.get_page(0))
+            len(openissues.get_page(0)) + len(closedissues.get_page(0)) + 0.01
         )
 
         # Pull requests count
@@ -153,7 +153,7 @@ def get_responsiveness_score(git, url, testing=False):
             all_requests.append(apull)
 
         # pull request ratio calculation
-        pullrequest_ratio = len(closed_requests) / len(all_requests)
+        pullrequest_ratio = len(closed_requests) / (len(all_requests)+0.01)
         logging.info("pull request ratio calculation...")
 
         # Responsiveness score

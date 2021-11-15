@@ -1,21 +1,39 @@
 import authenticate
+import unittest
+
+class AuthenticateTest(unittest.TestCase):
+    def test_register_admin(self):
+        auth = authenticate.Authenticator()
+        tok = auth.register_admin("leij".encode('utf-8'), "unbreakable password".encode('utf-8'))
+        self.assertNotEqual(len(auth.database), 0, "No users have been registered!")
+        self.assertNotEqual(len(auth.admin_tokens), 0, "No admins have been registered!")
+        #print("Admin registered")
+        #print("Admins:", auth.admin_tokens)
+
+    def test_register_user(self):
+        auth = authenticate.Authenticator()
+        tok = auth.register_admin("leij".encode('utf-8'), "unbreakable password".encode('utf-8'))
+        auth.register_user("leij".encode('utf-8'), tok, "fake user".encode('utf-8'),
+                               "breakable password".encode('utf-8'))
+        self.assertNotEqual(auth.database["fake user".encode('utf-8')], None)
+        #print("User registered")
+        #print("Users:", auth.database)
+
+    def test_delete_user(self):
+        auth = authenticate.Authenticator()
+        tok = auth.register_admin("leij".encode('utf-8'), "unbreakable password".encode('utf-8'))
+        auth.register_user("leij".encode('utf-8'), tok, "asbf".encode('utf-8'),
+                                "breakable password".encode('utf-8'))
+        #print("User registered")
+        #print("Users:", auth.database)
+        auth.delete_user("asbf".encode('utf-8'))
+        #print("User deleted")
+        #print("Users:", auth.database)
+        try:
+            auth.database["asbf".encode('utf-8')]
+        except Exception as e:
+            self.assertNotEqual(e, None, "User failed to delete")
 
 
-auth = authenticate.Authenticator()
-
-tok = auth.register_admin("leij".encode('utf-8'), "unbreakable password".encode('utf-8'))
-print("admin has been created")
-print(auth.database)
-print(auth.admin_tokens)
-auth.register_user("leij".encode('utf-8'), tok, "fake user".encode('utf-8'), "breakable password".encode('utf-8'))
-print("user has been registered")
-print(auth.database)
-print(auth.admin_tokens)
-auth.delete_user("fake user".encode('utf-8'))
-print("user has been deleted")
-print(auth.database)
-print(auth.admin_tokens)
-auth.delete_user("leij".encode('utf-8'))
-print("admin has been created")
-print(auth.database)
-print(auth.admin_tokens)
+if __name__ == "__main__":
+    unittest.main()
