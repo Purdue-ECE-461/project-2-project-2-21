@@ -63,8 +63,8 @@ def perform(urls, url_file):
         ramp_up_score = calculate_ramp_up(git, url)
         correctness_score = calculate_correctness(git, url)
         bus_factor = busfactor(git, url)
-        if responsiveness_score is None or license_score is None or ramp_up_score is None or correctness_score is None \
-                or bus_factor is None:
+        if responsiveness_score is None or license_score is None or \
+                ramp_up_score is None or correctness_score is None or bus_factor is None:
             return
         net_score = netscore(
             responsiveness_score,
@@ -380,8 +380,65 @@ def busfactor(github, url, testing=False):
 
     return round(score, 1)
 
+def get_update_score(github, url, testing=False):
+    """Calculate update score of the package. This is a measure
+    of the last time the package did a release or commit"""
+    update_score = 0
+    try:
+        repo = github.get_repo(url)
+    except GithubException:
+        if testing:
+            return 0
+        print("Invalid Repository")
+        return
+    # Read time of last release and commit
+    try:
+        deadline = datetime.combine(
+            date.today() + relativedelta(months=-12),
+            datetime.min.time()
+        )
+        now = datetime.now()
+        # Time of last release
+        releases = repo.get_releases()
+        release_dates = []
+        for release in releases:
+            release_dates.append(release.published_at)
+        latest_release = datetime.now() - relativedelta(months=100)
+        if len(release_dates) > 0:
+            latest_release = max(release_dates)
+        # Time of last commit
+        commits = repo.get_commits(since=deadline)
+        data = commits.get_page(0)
+        latest_commit = datetime.now() - relativedelta(months=100)
+        if len(data) > 0:
+            latest_commit = data[0].commit.author.date
+        # Determine score from these values
+        one_month_ago = datetime.now() - relativedelta(months=1)
+        one_year_ago = datetime.now() - relativedelta(months=12)
+        three_years_ago = datetime.now() - relativedelta(months=36)
+        # Based on release
+        if latest_release > one_year_ago:
+            update_score = 1
+        elif latest_release > three_years_ago:
+            update_score = 0.5
+        else:
+            update_score = 0
+         # Based on commit
+        if latest_commit > one_month_ago:
+            update_score *= 1
+        elif latest_commit > one_year_ago:
+            update_score *= 0.5
+        else:
+            update_score *= 0
 
-def netscore(responsiveness, licensing, rampup, correctness, busfact):
+    except GithubException:
+       pass
+
+    return update_score
+
+
+
+def netscore(responsiveness, licensing, rampup, correctness, busfact, update):
     """Calculate the net total score using the individual components."""
     # # Set metric values for testing
     # rampup = 1
@@ -395,11 +452,12 @@ def netscore(responsiveness, licensing, rampup, correctness, busfact):
         return 0
 
     busfact = 0.3 * busfact
-    responsiveness = 0.3 * responsiveness
-    correctness = 0.25 * correctness
+    responsiveness = 0.25 * responsiveness
+    correctness = 0.2 * correctness
     rampup = 0.15 * rampup
+    update = 0.1 * update
 
-    score = busfact + responsiveness + correctness + rampup
+    score = busfact + responsiveness + correctness + rampup + update
 
     return round(score, 1)
 
