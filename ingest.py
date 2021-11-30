@@ -1,3 +1,5 @@
+"""Ingests a package."""
+
 import os
 import shutil
 import errno
