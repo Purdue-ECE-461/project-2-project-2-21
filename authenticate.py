@@ -1,10 +1,12 @@
-import bcrypt
+"""Authenticates a user for database access."""
 
+import bcrypt
 
 class Authenticator:
     """
-    Authentication class that manages adding, removing, and authenticating users based on credentials such as username
-    and password. The passwords are hashed and salted.
+    Authentication class that manages adding, removing, 
+    and authenticating users based on credentials such as 
+    username and password. The passwords are hashed and salted.
     """
     def __init__(self):
         # Database dictionary from username to password hash
@@ -14,20 +16,22 @@ class Authenticator:
 
     def register_user(self, admin_username, admin_token, username, password):
         """
-        Registers new username and password using given admin token. This means only admins will be able to register
-        users. Returns True if new user is registered, and False otherwise.
+        Registers new username and password using given admin token. 
+        This means only admins will be able to register users. 
+        Returns True if new user is registered, and False otherwise.
         """
         # Check that the admin_token is valid for admin_username.
         admin_hash = self.admin_tokens[admin_username].encode('utf-8')
+
+        # admin_token passes, register the new user. If user already exists, overwrite password
         if self.check_hash(admin_token, admin_hash):
-            # admin_token passes, register the new user. If user already exists, overwrite password
             user_hash = self.get_hash(password)
             self.database[username] = user_hash
             return True
-        else:
-            # admin token failed, print error and do not register user
-            print("Admin username or token is incorrect.")
-            return False
+
+        # admin token failed, print error and do not register user
+        print("Admin username or token is incorrect.")
+        return False
 
     def register_admin(self, admin_username, admin_password):
         """
@@ -56,11 +60,8 @@ class Authenticator:
         pwhash = bcrypt.hashpw(password, bcrypt.gensalt(12))
         return pwhash.decode('utf8')
 
-    def check_hash(self, plaintext, hash):
+    def check_hash(self, plaintext, hash_value):
         """
         Checks hashed password or token.
         """
-        return bcrypt.checkpw(plaintext, hash)
-
-
-
+        return bcrypt.checkpw(plaintext, hash_value)
