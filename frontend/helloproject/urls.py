@@ -1,3 +1,5 @@
+"""This module manages hellapp urls"""
+
 from django.urls import path, include
 
 urlpatterns = [
