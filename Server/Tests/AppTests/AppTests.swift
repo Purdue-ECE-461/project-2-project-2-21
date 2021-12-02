@@ -3,11 +3,18 @@ import XCTVapor
 
 final class AppTests: XCTestCase {
     
-    func testCreatePackage() throws {
-        let app = Application(.testing)
-        defer { app.shutdown() }
+    private var app: Application!
+    
+    override func setUpWithError() throws {
+        app = Application(.testing)
         try configure(app)
-        
+    }
+    
+    override func tearDownWithError() throws {
+        app.shutdown()
+    }
+    
+    func testCreatePackage() throws {
         guard let fileURL = Bundle.module.url(forResource: "underscore", withExtension: "json", subdirectory: "MockData/Packages") else {
             XCTFail("File not found.")
             return
@@ -28,10 +35,6 @@ final class AppTests: XCTestCase {
     }
     
     func testGETUnderscorePackageResponseByID() throws {
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        try configure(app)
-        
         try app.test(.GET, "package/underscore", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
@@ -39,10 +42,6 @@ final class AppTests: XCTestCase {
     }
     
     func testPUTUnderscorePackageResponseByID() throws {
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        try configure(app)
-        
         try app.test(.PUT, "package/underscore", beforeRequest: { req in
             let package = ProjectPackage.mock
             try req.content.encode(package)
@@ -54,10 +53,6 @@ final class AppTests: XCTestCase {
     }
     
     func testDELETEUnderscorePackageResponseByID() throws {
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        try configure(app)
-        
         try app.test(.DELETE, "package/underscore", beforeRequest: { req in
             let package = ProjectPackage.mock
             try req.content.encode(package)
@@ -69,10 +64,6 @@ final class AppTests: XCTestCase {
     }
     
     func testGETRate() throws {
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        try configure(app)
-        
         try app.test(.GET, "package/underscore/rate", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
@@ -99,11 +90,14 @@ final class AppTests: XCTestCase {
         })
     }
     
+    func testAuthenticatedReset() throws {
+        try app.test(.DELETE, "reset", afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .plainText)
+        })
+    }
+    
     func testCreateAuthToken() throws {
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        try configure(app)
-        
         try app.test(.PUT, "authenticate", beforeRequest: { req in
             let authRequest = AuthenticationRequest.mock
             try req.content.encode(authRequest)
