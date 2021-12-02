@@ -24,6 +24,7 @@ jobs:
         pip install python-dateutil
         pip install requests
         pip install bcrypt
+        pip install beautifulsoup4
     - name: Analysing the code with pylint
       run: |
         pylint $(find . -name "*.py" | xargs)
