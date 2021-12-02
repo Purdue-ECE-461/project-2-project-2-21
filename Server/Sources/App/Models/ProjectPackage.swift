@@ -8,40 +8,32 @@
 import Foundation
 import Vapor
 
-struct ProjectPackage: Content {
+struct ProjectPackage: Content, Codable {
     let metadata: Metadata
     let data: PackageData
 }
 
 extension ProjectPackage {
-    struct Metadata: Content, Equatable {
+    struct Metadata: Content, Codable, Equatable {
         let name: String
         let version: String
         let id: String
+        
+        enum CodingKeys: String, CodingKey {
+            case name = "Name"
+            case version = "Version"
+            case id = "ID"
+        }
     }
     
-    struct PackageData {
+    struct PackageData: Codable {
         let content: String
         let url: String
-    }
-}
-
-// MARK: - Codable
-
-extension ProjectPackage: Codable {}
-
-extension ProjectPackage.Metadata: Codable {
-    enum CodingKeys: String, CodingKey {
-        case name = "Name"
-        case version = "Version"
-        case id = "ID"
-    }
-}
-
-extension ProjectPackage.PackageData: Codable {
-    enum CodingKeys: String, CodingKey {
-        case content = "Content"
-        case url = "URL"
+        
+        enum CodingKeys: String, CodingKey {
+            case content = "Content"
+            case url = "URL"
+        }
     }
 }
 

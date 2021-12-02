@@ -11,11 +11,11 @@ import Vapor
 struct PackageIDController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let package = routes.grouped("package")
-        package.post(use: create)
-        package.get(":id", use: index)
-        package.put(":id", use: update)
-        package.delete(":id", use: delete)
-        package.get("id", "rate", use: rate)
+        package.post(use: create) // Create a package
+        package.get(":id", use: index) // Get a package
+        package.put(":id", use: update) // Update a package
+        package.delete(":id", use: delete) // Deleta a package
+        package.get(":id", "rate", use: rate) // Rate a package
     }
     
     func create(req: Request) throws -> ProjectPackage.Metadata {

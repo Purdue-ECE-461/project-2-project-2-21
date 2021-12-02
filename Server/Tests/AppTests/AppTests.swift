@@ -96,8 +96,23 @@ final class AppTests: XCTestCase {
             
             XCTAssertGreaterThanOrEqual(score.goodPinningPractice, 0)
             XCTAssertLessThanOrEqual(score.goodPinningPractice, 1)
+        })
+    }
+    
+    func testCreateAuthToken() throws {
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        try app.test(.PUT, "authenticate", beforeRequest: { req in
+            let authRequest = AuthenticationRequest.mock
+            try req.content.encode(authRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
             
-            // TODO: Check if JSON response has capital letters
+            let bearerToken = res.body.string
+            XCTAssertEqual(bearerToken, "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
         })
     }
 }
