@@ -6,7 +6,6 @@ from datetime import date, datetime, timedelta
 import re
 import os
 import base64
-import sys
 import requests
 from github import Github, GithubException
 from bs4 import BeautifulSoup
@@ -41,6 +40,7 @@ def perform(urls, url_file):
         "BUS_FACTOR_SCORE",
         "RESPONSIVE_MAINTAINER_SCORE",
         "LICENSE_SCORE",
+        "UPDATE_SCORE"
     ]
 
     print(*column_values, sep=" ")
@@ -50,32 +50,28 @@ def perform(urls, url_file):
 
 def calc_scores(git, urls, raw_url_list):
     """Calculates scores of urls"""
-    for i in enumerate(urls):
-        url = urls[i]
+    for i, url in enumerate(urls):
         raw_url = raw_url_list[i]
 
+        repo = create_repo_object(git, url)
+
         logging.info("Responsiveness calculation started..")
-        responsiveness_score = get_responsiveness_score(git, url)
+        responsiveness_score = get_responsiveness_score(repo)
         logging.info("Responsiveness score calculation success")
-        license_score = get_license_score(git, url)
+        license_score = get_license_score(repo)
         logging.info("License score calculation success")
-        ramp_up_score = calculate_ramp_up(git, url)
-        correctness_score = calculate_correctness(git, url)
-        bus_factor = busfactor(git, url)
-        if (
-            responsiveness_score is None
-            or license_score is None
-            or ramp_up_score is None
-            or correctness_score is None
-            or bus_factor is None
-        ):
-            return
+        ramp_up_score = calculate_ramp_up(repo, url)
+        correctness_score = calculate_correctness(repo)
+        bus_factor = busfactor(repo)
+        update_score = get_update_score(repo)
+
         net_score = netscore(
-            responsiveness_score,
+            [responsiveness_score,
             license_score,
             ramp_up_score,
             correctness_score,
             bus_factor,
+            update_score]
         )
         print(
             raw_url
@@ -91,6 +87,8 @@ def calc_scores(git, urls, raw_url_list):
             + str(responsiveness_score)
             + " "
             + str(license_score)
+            + " "
+            + str(update_score)
         )
 
 
@@ -112,31 +110,21 @@ def parse(url_file):
                 url = urll.replace("https://github.com/", "")
                 urls.append(url.rstrip())
             else:
-                print("Invalid URL: " + str(urll))
-                return
+                return 0
     logging.info("Parsing url file successful")
     return urls
 
 
-def get_responsiveness_score(git, url, testing=False):
+def get_responsiveness_score(repo):
     """Responsiveness score calculation"""
     responsiveness_score = 0
-    try:
-        repo = git.get_repo(url)
-    except GithubException:
-        if testing:
-            return 0
-    if git is None:
-        print("No Github token specified in environment")
-        return
+    if repo == 0:
+        return 0
 
     issue_ratio = 0
     try:
         logging.info("Repository API call")
         # Issues post count
-
-        # git = Github(gtoken)
-        repo = git.get_repo(url)
 
         openissues = repo.get_issues(state="open", since=datetime.now() - timedelta(days=365))
         closedissues = repo.get_issues(state="closed", since=datetime.now() - timedelta(days=365))
@@ -173,24 +161,18 @@ def get_responsiveness_score(git, url, testing=False):
 # https://towardsdatascience.com/all-the-things-you-can-do-with-github-api-and-python-f01790fca131
 
 
-def get_license_score(git, url, testing=False):
+def get_license_score(repo):
     """Determines the license score of a GitHub repository"""
-    try:
-        grepo = git.get_repo(url)
-    except GithubException:
-        if testing:
-            return 0
-        print("Invalid repository")
-        return
+    if repo == 0:
+        return 0
 
     licensed = None
     license_score = 0
 
     try:
         logging.info("searching for LICENSE file...")
-        grepo = git.get_repo(url)
 
-        lic = base64.b64decode(grepo.get_license().content.encode()).decode()
+        lic = base64.b64decode(repo.get_license().content.encode()).decode()
 
         if lic is not None:
             mitlic = re.search("(\\w+) License", lic).group(0)
@@ -202,7 +184,7 @@ def get_license_score(git, url, testing=False):
         logging.info("LICENSE file not found")
         logging.info("searching for README...")
         try:
-            readme = base64.b64decode(grepo.get_readme().content.encode()).decode()
+            readme = base64.b64decode(repo.get_readme().content.encode()).decode()
             if readme is not None:
                 logging.info("README file found")
                 licensed = re.search("(\\w+) license", readme).group(0)
@@ -236,16 +218,11 @@ def delete_repo(directory):
     os.system(delete_clone_command)
 
 
-def calculate_ramp_up(git, url, testing=False):
+def calculate_ramp_up(repo, url):
     """Calculates the ramp-up score for a given repository."""
+    if repo == 0:
+        return 0
     score = 0
-    try:
-        repo = git.get_repo(url)
-    except GithubException:
-        if testing:
-            return 0
-        print("Invalid Repository")
-        return
     # open largest file of source code, parse line by line for comments, calculate percentage
     # 30% of score
     directory = url.split("/")[1]
@@ -311,21 +288,16 @@ def get_readme_subscore(repo):
             subscore += 0.7
         else:
             subscore += 0.7 * (lines / 500)
-    except GithubException as exception:
-        print(exception)
+    except GithubException:
+        pass
     return subscore
 
 
 
-def calculate_correctness(github, url, testing=False):
+def calculate_correctness(repo):
     """Calculates the correctness of a GitHub repository"""
-    try:
-        repo = github.get_repo(url)
-    except GithubException:
-        if testing:
-            return 0
-        print("Invalid Repository")
-        return
+    if repo == 0:
+        return 0
 
     score = 0
 
@@ -362,16 +334,11 @@ def calculate_correctness(github, url, testing=False):
     return round(score, 1)
 
 
-def busfactor(github, url, testing=False):
+def busfactor(repo):
     """Calculates the bus factor score of a repository."""
     score = 0
-    try:
-        repo = github.get_repo(url)
-    except GithubException:
-        if testing:
-            return 0
-        print("Invalid Repository")
-        return
+    if repo == 0:
+        return 0
 
     # Find the number of contribuors
     try:
@@ -404,23 +371,19 @@ def busfactor(github, url, testing=False):
     return round(score, 1)
 
 
-def get_update_score(github, url, testing=False):
+def get_update_score(repo):
     """Calculate update score of the package. This is a measure
     of the last time the package did a release or commit"""
     update_score = 0
-    try:
-        repo = github.get_repo(url)
-    except GithubException:
-        if testing:
-            return 0
-        print("Invalid Repository")
-        return
+
+    if repo == 0:
+        return 0
+
     # Read time of last release and commit
     try:
         deadline = datetime.combine(
             date.today() + relativedelta(months=-12), datetime.min.time()
         )
-        now = datetime.now()
         # Time of last release
         releases = repo.get_releases()
         release_dates = []
@@ -457,10 +420,10 @@ def get_update_score(github, url, testing=False):
     except GithubException:
         pass
 
-    return update_score
+    return round(update_score, 1)
 
 
-def netscore(responsiveness, licensing, rampup, correctness, busfact, update):
+def netscore(scores):
     """Calculate the net total score using the individual components."""
     # # Set metric values for testing
     # rampup = 1
@@ -468,6 +431,8 @@ def netscore(responsiveness, licensing, rampup, correctness, busfact, update):
     # busfact = 1
     # responsiveness = 1
     # licensing = 1
+
+    [responsiveness, licensing, rampup, correctness, busfact, update] = scores[:]
 
     # Licensing is essential
     if licensing == 0:
@@ -482,3 +447,12 @@ def netscore(responsiveness, licensing, rampup, correctness, busfact, update):
     score = busfact + responsiveness + correctness + rampup + update
 
     return round(score, 1)
+
+
+def create_repo_object(github, url):
+    """Creates repo object for scoring functionality"""
+    try:
+        repo = github.get_repo(url)
+        return repo
+    except GithubException:
+        return 0
