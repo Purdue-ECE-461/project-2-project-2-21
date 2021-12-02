@@ -12,7 +12,6 @@ if len(sys.argv) == 2:
         test.test()
     else:
         urls = perform.parse(sys.argv[1])
-        perform.performperform(urls, sys.argv[1])
+        perform.perform(urls, sys.argv[1])
 else:
     print("Incorrect number of arguments")
-    sys.exit(1)

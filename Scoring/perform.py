@@ -21,35 +21,29 @@ def perform(urls, url_file):
     log_file = os.getenv("LOG_FILE")
     log_level = os.getenv("LOG_LEVEL")
     if log_level == "2":
-        logging.basicConfig(
-            filename=log_file,
-            filemode="w",
-            level=logging.DEBUG)
+        logging.basicConfig(filename=log_file, filemode="w", level=logging.DEBUG)
     elif log_level == "1":
-        logging.basicConfig(
-            filename=log_file,
-            filemode="w",
-            level=logging.INFO)
+        logging.basicConfig(filename=log_file, filemode="w", level=logging.INFO)
     gtoken = os.getenv("GITHUB_TOKEN")
     git = Github(gtoken)
     if gtoken is None:
         print("No Github token specified in environment")
-        sys.exit(1)
+        return
 
-    with open(url_file, encoding='utf-8', mode='r') as file:
+    with open(url_file, encoding="utf-8", mode="r") as file:
         raw_url_list = file.read().splitlines()
 
     column_values = [
-        'URL',
-        'NET_SCORE',
-        'RAMP_UP_SCORE',
-        'CORRECTNESS_SCORE',
-        'BUS_FACTOR_SCORE',
-        'RESPONSIVE_MAINTAINER_SCORE',
-        'LICENSE_SCORE'
+        "URL",
+        "NET_SCORE",
+        "RAMP_UP_SCORE",
+        "CORRECTNESS_SCORE",
+        "BUS_FACTOR_SCORE",
+        "RESPONSIVE_MAINTAINER_SCORE",
+        "LICENSE_SCORE",
     ]
 
-    print(*column_values, sep=' ')
+    print(*column_values, sep=" ")
 
     calc_scores(git, urls, raw_url_list)
 
@@ -68,6 +62,14 @@ def calc_scores(git, urls, raw_url_list):
         ramp_up_score = calculate_ramp_up(git, url)
         correctness_score = calculate_correctness(git, url)
         bus_factor = busfactor(git, url)
+        if (
+            responsiveness_score is None
+            or license_score is None
+            or ramp_up_score is None
+            or correctness_score is None
+            or bus_factor is None
+        ):
+            return
         net_score = netscore(
             responsiveness_score,
             license_score,
@@ -98,7 +100,7 @@ def parse(url_file):
     # For testing
     # filename = 'Sample Url File.txt'
     urls = []
-    with open(url_file, encoding='utf-8', mode='r') as file:
+    with open(url_file, encoding="utf-8", mode="r") as file:
         for urll in file.read().splitlines():
             if urll.startswith("https://www.npmjs"):
                 req = requests.get(urll)
@@ -111,7 +113,7 @@ def parse(url_file):
                 urls.append(url.rstrip())
             else:
                 print("Invalid URL: " + str(urll))
-                sys.exit(1)
+                return
     logging.info("Parsing url file successful")
     return urls
 
@@ -126,7 +128,7 @@ def get_responsiveness_score(git, url, testing=False):
             return 0
     if git is None:
         print("No Github token specified in environment")
-        sys.exit(1)
+        return
 
     issue_ratio = 0
     try:
@@ -140,7 +142,7 @@ def get_responsiveness_score(git, url, testing=False):
         closedissues = repo.get_issues(state="closed", since=datetime.now() - timedelta(days=365))
 
         issue_ratio = len(closedissues.get_page(0)) / (
-            len(openissues.get_page(0)) + len(closedissues.get_page(0))
+            len(openissues.get_page(0)) + len(closedissues.get_page(0)) + 0.01
         )
 
         # Pull requests count
@@ -154,7 +156,7 @@ def get_responsiveness_score(git, url, testing=False):
             all_requests.append(apull)
 
         # pull request ratio calculation
-        pullrequest_ratio = len(closed_requests) / len(all_requests)
+        pullrequest_ratio = len(closed_requests) / (len(all_requests) + 0.01)
         logging.info("pull request ratio calculation...")
 
         # Responsiveness score
@@ -179,7 +181,7 @@ def get_license_score(git, url, testing=False):
         if testing:
             return 0
         print("Invalid repository")
-        sys.exit(1)
+        return
 
     licensed = None
     license_score = 0
@@ -200,8 +202,7 @@ def get_license_score(git, url, testing=False):
         logging.info("LICENSE file not found")
         logging.info("searching for README...")
         try:
-            readme = base64.b64decode(
-                grepo.get_readme().content.encode()).decode()
+            readme = base64.b64decode(grepo.get_readme().content.encode()).decode()
             if readme is not None:
                 logging.info("README file found")
                 licensed = re.search("(\\w+) license", readme).group(0)
@@ -244,7 +245,7 @@ def calculate_ramp_up(git, url, testing=False):
         if testing:
             return 0
         print("Invalid Repository")
-        sys.exit(1)
+        return
     # open largest file of source code, parse line by line for comments, calculate percentage
     # 30% of score
     directory = url.split("/")[1]
@@ -252,11 +253,7 @@ def calculate_ramp_up(git, url, testing=False):
 
     # find largest file
     repo_dir = os.getcwd() + "/" + directory
-    filter_obj = filter(
-        os.path.isfile,
-        glob.glob(
-            repo_dir + "/*",
-            recursive=True))
+    filter_obj = filter(os.path.isfile, glob.glob(repo_dir + "/*", recursive=True))
     # above line taken from
     # https://thispointer.com/python-find-the-largest-file-in-a-directory/
     files = list(filter_obj)
@@ -271,7 +268,7 @@ def calculate_ramp_up(git, url, testing=False):
             max_size = cur_size
             max_file = file
 
-    with open(max_file, encoding='utf-8', mode='r') as file:
+    with open(max_file, encoding="utf-8", mode="r") as file:
         file_content = file.read().splitlines()
 
     # get commented lines
@@ -328,7 +325,7 @@ def calculate_correctness(github, url, testing=False):
         if testing:
             return 0
         print("Invalid Repository")
-        sys.exit(1)
+        return
 
     score = 0
 
@@ -374,7 +371,7 @@ def busfactor(github, url, testing=False):
         if testing:
             return 0
         print("Invalid Repository")
-        sys.exit(1)
+        return
 
     # Find the number of contribuors
     try:
@@ -407,7 +404,63 @@ def busfactor(github, url, testing=False):
     return round(score, 1)
 
 
-def netscore(responsiveness, licensing, rampup, correctness, busfact):
+def get_update_score(github, url, testing=False):
+    """Calculate update score of the package. This is a measure
+    of the last time the package did a release or commit"""
+    update_score = 0
+    try:
+        repo = github.get_repo(url)
+    except GithubException:
+        if testing:
+            return 0
+        print("Invalid Repository")
+        return
+    # Read time of last release and commit
+    try:
+        deadline = datetime.combine(
+            date.today() + relativedelta(months=-12), datetime.min.time()
+        )
+        now = datetime.now()
+        # Time of last release
+        releases = repo.get_releases()
+        release_dates = []
+        for release in releases:
+            release_dates.append(release.published_at)
+        latest_release = datetime.now() - relativedelta(months=100)
+        if len(release_dates) > 0:
+            latest_release = max(release_dates)
+        # Time of last commit
+        commits = repo.get_commits(since=deadline)
+        data = commits.get_page(0)
+        latest_commit = datetime.now() - relativedelta(months=100)
+        if len(data) > 0:
+            latest_commit = data[0].commit.author.date
+        # Determine score from these values
+        one_month_ago = datetime.now() - relativedelta(months=1)
+        one_year_ago = datetime.now() - relativedelta(months=12)
+        three_years_ago = datetime.now() - relativedelta(months=36)
+        # Based on release
+        if latest_release > one_year_ago:
+            update_score = 1
+        elif latest_release > three_years_ago:
+            update_score = 0.5
+        else:
+            update_score = 0
+        # Based on commit
+        if latest_commit > one_month_ago:
+            update_score *= 1
+        elif latest_commit > one_year_ago:
+            update_score *= 0.5
+        else:
+            update_score *= 0
+
+    except GithubException:
+        pass
+
+    return update_score
+
+
+def netscore(responsiveness, licensing, rampup, correctness, busfact, update):
     """Calculate the net total score using the individual components."""
     # # Set metric values for testing
     # rampup = 1
@@ -421,10 +474,11 @@ def netscore(responsiveness, licensing, rampup, correctness, busfact):
         return 0
 
     busfact = 0.3 * busfact
-    responsiveness = 0.3 * responsiveness
-    correctness = 0.25 * correctness
+    responsiveness = 0.25 * responsiveness
+    correctness = 0.2 * correctness
     rampup = 0.15 * rampup
+    update = 0.1 * update
 
-    score = busfact + responsiveness + correctness + rampup
+    score = busfact + responsiveness + correctness + rampup + update
 
     return round(score, 1)
