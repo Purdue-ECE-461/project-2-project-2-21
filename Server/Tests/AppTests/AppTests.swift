@@ -109,4 +109,22 @@ final class AppTests: XCTestCase {
             XCTAssertEqual(bearerToken, "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
         })
     }
+    
+    func testGETPackageHistoryByName() throws {
+        try app.test(.GET, "package/byName/Underscore", afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
+            _ = try res.content.decode([PackageHistoryItem].self)
+        })
+    }
+    
+    func testDELETEPackageVersionsByName() throws {
+        try app.test(.DELETE, "package/byName/Underscore", afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .plainText)
+            XCTAssertEqual(res.body.string, "") // Ensure empty response
+        })
+    }
+    
+    
 }

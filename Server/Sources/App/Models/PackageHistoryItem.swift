@@ -75,5 +75,60 @@ extension PackageHistoryItem {
         ),
         action: "DOWNLOAD"
     )
+    
+    static let items: [PackageHistoryItem] = [
+        PackageHistoryItem(
+            user: AuthenticationRequest.User(
+                name: "Paschal Amusuo",
+                isAdmin: true
+            ),
+            date: "2021-11-21T01:11:11Z",
+            packageMetadata: ProjectPackage.Metadata(
+                name: "Underscore",
+                version: "1.0.0",
+                id: "underscore"
+            ),
+            action: "DOWNLOAD"
+        ),
+        PackageHistoryItem(
+            user: AuthenticationRequest.User(
+                name: "Paschal Amusuo",
+                isAdmin: true
+            ),
+            date: "2021-11-20T01:11:11Z",
+            packageMetadata: ProjectPackage.Metadata(
+                name: "Underscore",
+                version: "1.0.0",
+                id: "underscore"
+            ),
+            action: "UPDATE"
+        ),
+        PackageHistoryItem(
+            user: AuthenticationRequest.User(
+                name: "Paschal Amusuo",
+                isAdmin: true
+            ),
+            date: "2021-11-19T01:11:11Z",
+            packageMetadata: ProjectPackage.Metadata(
+                name: "Underscore",
+                version: "1.0.0",
+                id: "underscore"
+            ),
+            action: "RATE"
+        ),
+        PackageHistoryItem(
+            user: AuthenticationRequest.User(
+                name: "Paschal Amusuo",
+                isAdmin: true
+            ),
+            date: "2021-11-18T01:11:11Z",
+            packageMetadata: ProjectPackage.Metadata(
+                name: "Underscore",
+                version: "1.0.0",
+                id: "underscore"
+            ),
+            action: "CREATE"
+        )
+    ]
 }
 #endif

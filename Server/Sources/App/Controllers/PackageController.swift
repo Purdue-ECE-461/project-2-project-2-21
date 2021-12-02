@@ -56,12 +56,22 @@ struct PackageController: RouteCollection {
         return PackageScore.mock
     }
     
-    func getPackageByName(request: Request) throws -> String {
-        return ""
+    func getPackageByName(request: Request) throws -> [PackageHistoryItem] {
+        // TODO: Implement get package history by name
+        
+        guard let _ = request.parameters.get("name") else {
+            throw Abort(.badRequest)
+        }
+        
+        // TODO: Remove mock
+        return PackageHistoryItem.items
     }
     
-    func deletePackageByName(request: Request) throws -> String {
-        return ""
+    func deletePackageByName(request: Request) throws -> Response {
+        // TODO: Implement
+        var headers = HTTPHeaders()
+        headers.add(name: .contentType, value: "text/plain")
+        return Response(status: .ok, headers: headers)
     }
     
 }
