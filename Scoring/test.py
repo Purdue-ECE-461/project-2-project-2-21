@@ -11,12 +11,16 @@ from perform import (
     busfactor,
     get_responsiveness_score,
     get_license_score,
-    get_update_score
+    get_update_score,
+    netscore,
+    create_repo_object
 )
 import authenticate
 import ingest
 
+
 class Tester(unittest.TestCase):
+    """Unit tester for scoring functions and ingestion"""
     def test0(self):
         """
         unit test for ramp-up:
@@ -28,7 +32,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "jquery/jquery"
-        ramp_up_score = calculate_ramp_up(github, url)
+        repo = create_repo_object(github, url)
+        ramp_up_score = calculate_ramp_up(repo, url)
         self.assertGreaterEqual(ramp_up_score, 0.5)
 
 
@@ -43,7 +48,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "Project-1-21/GNU-LGPL-Test"
-        score = calculate_ramp_up(github, url)
+        repo = create_repo_object(github, url)
+        score = calculate_ramp_up(repo, url)
         self.assertLess(score, 0.5)
 
 
@@ -58,8 +64,9 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "expressjs/express"
+        repo = create_repo_object(github, url)
         start = time.time()
-        calculate_ramp_up(github, url)
+        calculate_ramp_up(repo, url)
         length = time.time() - start
         self.assertLessEqual(length, 15)
 
@@ -75,23 +82,9 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "fake_url"
-        returnval = calculate_ramp_up(github, url, True)
+        repo = create_repo_object(github, url)
+        returnval = calculate_ramp_up(repo, url)
         self.assertEqual(returnval, 0)
-
-
-    # def test4(self):
-    #     """
-    #     unit test for correctness:
-    #         ensure that it gives a good score (>=0.5) to jQuery
-    #     """
-    #     gtoken = os.getenv("GITHUB_TOKEN")
-    #     if gtoken is None:
-    #         print("No Github Token set in environment")
-    #         return
-    #     github = Github(gtoken)
-    #     url = "jquery/jquery"
-    #     correctness_score = calculate_correctness(github, url)
-    #     self.assertGreaterEqual(correctness_score, 0.5)
 
 
     def test5(self):
@@ -105,7 +98,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "Project-1-21/GNU-LGPL-Test"
-        score = calculate_correctness(github, url)
+        repo = create_repo_object(github, url)
+        score = calculate_correctness(repo)
         self.assertLess(score, 0.5)
 
 
@@ -120,8 +114,9 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "expressjs/express"
+        repo = create_repo_object(github, url)
         start = time.time()
-        calculate_correctness(github, url)
+        calculate_correctness(repo)
         length = time.time() - start
         self.assertLessEqual(length, 45)
 
@@ -137,7 +132,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "fake_url"
-        returnval = calculate_correctness(github, url, True)
+        repo = create_repo_object(github, url)
+        returnval = calculate_correctness(repo)
         self.assertEqual(returnval, 0)
 
 
@@ -153,7 +149,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "cloudinary/cloudinary_npm"
-        score = busfactor(github, url)
+        repo = create_repo_object(github, url)
+        score = busfactor(repo)
         self.assertGreater(score, 0.25)
 
 
@@ -168,8 +165,9 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "public-apis/public-apis"
+        repo = create_repo_object(github, url)
         start = time.time()
-        busfactor(github, url)
+        busfactor(repo)
         length = time.time() - start
         self.assertLessEqual(length, 20)
 
@@ -185,7 +183,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "fake_url"
-        returnval = busfactor(github, url, True)
+        repo = create_repo_object(github, url)
+        returnval = busfactor(repo)
         self.assertEqual(returnval, 0)
 
 
@@ -200,23 +199,9 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "nullivex/nodist"
-        score = busfactor(github, url)
+        repo = create_repo_object(github, url)
+        score = busfactor(repo)
         self.assertLess(score, 0.1)
-
-
-    # def test12(self):
-    #     """
-    #     unit test for Responsiveness:
-    #         ensure that it gives a good score (>=0.5) to jQuery
-    #     """
-    #     gtoken = os.getenv("GITHUB_TOKEN")
-    #     if gtoken is None:
-    #         print("No Github Token set in environment")
-    #         return
-    #     github = Github(gtoken)
-    #     url = "jquery/jquery"
-    #     ramp_up_score = get_responsiveness_score(github, url)
-    #     self.assertGreaterEqual(ramp_up_score, 0.5)
 
 
     def test13(self):
@@ -230,7 +215,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "Project-1-21/GNU-LGPL-Test"
-        score = get_responsiveness_score(github, url)
+        repo = create_repo_object(github, url)
+        score = get_responsiveness_score(repo)
         self.assertLess(score, 0.5)
 
 
@@ -246,7 +232,8 @@ class Tester(unittest.TestCase):
         github = Github(gtoken)
         url = "expressjs/express"
         start = time.time()
-        get_responsiveness_score(github, url)
+        repo = create_repo_object(github, url)
+        get_responsiveness_score(repo)
         length = time.time() - start
         self.assertLessEqual(length, 100)
 
@@ -262,23 +249,9 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "fake_url"
-        returnval = get_responsiveness_score(github, url, True)
+        repo = create_repo_object(github, url)
+        returnval = get_responsiveness_score(repo)
         self.assertEqual(returnval, 0)
-
-
-    # def test16(self):
-    #     """
-    #     unit test for License score:
-    #         ensure that it gives a good score (>=0.5) to jQuery
-    #     """
-    #     gtoken = os.getenv("GITHUB_TOKEN")
-    #     if gtoken is None:
-    #         print("No Github Token set in environment")
-    #         return
-    #     github = Github(gtoken)
-    #     url = "jquery/jquery"
-    #     ramp_up_score = get_license_score(github, url)
-    #     self.assertGreaterEqual(ramp_up_score, 0.5)
 
 
     def test17(self):
@@ -292,7 +265,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "Project-1-21/GNU-LGPL-Test"
-        score = get_license_score(github, url)
+        repo = create_repo_object(github, url)
+        score = get_license_score(repo)
         self.assertEqual(score, 1)
 
 
@@ -308,7 +282,8 @@ class Tester(unittest.TestCase):
         github = Github(gtoken)
         url = "expressjs/express"
         start = time.time()
-        get_license_score(github, url)
+        repo = create_repo_object(github, url)
+        get_license_score(repo)
         length = time.time() - start
         self.assertLessEqual(length, 30)
 
@@ -329,7 +304,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "fake_url"
-        returnval = get_license_score(github, url, True)
+        repo = create_repo_object(github, url)
+        returnval = get_license_score(repo)
         self.assertEqual(returnval, 0)
 
     def test_register_admin(self):
@@ -384,7 +360,7 @@ class Tester(unittest.TestCase):
             shutil.rmtree("./test_dir", onerror=del_rw)
             ingest.make_package_dir(database_dir="test_dir")
             os.mkdir("./test_dir/package_1")
-            ingest.remove_package("package_1", database_dir="test_dir")
+            ingest.remove_package_folder("package_1", database_dir="test_dir")
             self.assertFalse(os.path.isdir("./test_dir/package_1"))
             shutil.rmtree("./test_dir")
 
@@ -395,8 +371,10 @@ class Tester(unittest.TestCase):
         if os.path.isdir("./test_dir"):
             shutil.rmtree("./test_dir", onerror=del_rw)
             ingest.make_package_dir(database_dir="test_dir")
-            local_path = "./bin"
+            local_path = "./temp_directory"
+            os.mkdir(local_path)
             ingest.ingest_package_local(local_path, "test_bin", database_dir="test_dir")
+            os.rmdir(local_path)
             self.assertTrue(os.path.isdir("./test_dir/test_bin"))
             shutil.rmtree("./test_dir")
 
@@ -409,7 +387,7 @@ class Tester(unittest.TestCase):
         ingest.make_package_dir(database_dir="test_dir")
         url = "https://github.com/Project-1-21/GNU-LGPL-Test"
         ingest.ingest_package_github(url, "test_package", database_dir="test_dir")
-        self.assertTrue(os.path.isdir("./test_dir/test_package"))
+        self.assertTrue(os.path.isfile("./test_dir/test_package.zip"))
         shutil.rmtree("./test_dir", onerror=del_rw)
 
     def test_update_score_1(self):
@@ -422,7 +400,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "expressjs/express"
-        update_score = get_update_score(github, url)
+        repo = create_repo_object(github, url)
+        update_score = get_update_score(repo)
         self.assertEqual(update_score, 0.5)
 
     def test_update_score_2(self):
@@ -435,7 +414,8 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "cloudinary/cloudinary_npm"
-        update_score = get_update_score(github, url)
+        repo = create_repo_object(github, url)
+        update_score = get_update_score(repo)
         self.assertEqual(update_score, 1)
 
     def test_update_score_3(self):
@@ -448,8 +428,175 @@ class Tester(unittest.TestCase):
             return
         github = Github(gtoken)
         url = "auth0/configured-sample-generator"
-        update_score = get_update_score(github, url)
+        repo = create_repo_object(github, url)
+        update_score = get_update_score(repo)
         self.assertEqual(update_score, 0)
+
+    def test_calc_score_1(self):
+        """
+        Performs a end-to-end score test on the expresssjs repository
+        """
+        gtoken = os.getenv("GITHUB_TOKEN")
+        if gtoken is None:
+            print("No Github Token set in environment")
+            return
+        github = Github(gtoken)
+        url = "expressjs/express"
+        repo = create_repo_object(github, url)
+        # Check responsiveness score
+        resp = get_responsiveness_score(repo)
+        self.assertEqual(resp, 0.7)
+        # Check license score
+        lic = get_license_score(repo)
+        self.assertEqual(lic, 1)
+        # Check ramp-up score
+        ramp_up = calculate_ramp_up(repo, url)
+        self.assertEqual(ramp_up, 0.1)
+        # Check correctness score
+        corr = calculate_correctness(repo)
+        self.assertEqual(corr, 0.7)
+        # Check busfactor score
+        bus = busfactor(repo)
+        self.assertEqual(bus, 0.35)
+        # Check update score
+        update = get_update_score(repo)
+        self.assertEqual(update, 0.5)
+        # Check net score
+        net_score = netscore([resp, lic, ramp_up, corr, bus, update])
+        self.assertEqual(net_score, 0.5)
+
+    def test_calc_score_2(self):
+        """
+        Performs a end-to-end score test on the lazygit repository
+        """
+        gtoken = os.getenv("GITHUB_TOKEN")
+        if gtoken is None:
+            print("No Github Token set in environment")
+            return
+        github = Github(gtoken)
+        url = "jesseduffield/lazygit"
+        repo = create_repo_object(github, url)
+        # Check responsiveness score
+        resp = get_responsiveness_score(repo)
+        self.assertEqual(resp, 0.7)
+        # Check license score
+        lic = get_license_score(repo)
+        self.assertEqual(lic, 1)
+        # Check ramp-up score
+        ramp_up = calculate_ramp_up(repo, url)
+        self.assertEqual(ramp_up, 0.4)
+        # Check correctness score
+        corr = calculate_correctness(repo)
+        self.assertEqual(corr, 0.5)
+        # Check busfactor score
+        bus = busfactor(repo)
+        self.assertEqual(bus, 1)
+        # Check update score
+        update = get_update_score(repo)
+        self.assertEqual(update, 1)
+        # Check net score
+        net_score = netscore([resp, lic, ramp_up, corr, bus, update])
+        self.assertEqual(net_score, 0.7)
+
+    def test_calc_score_3(self):
+        """
+        Performs a end-to-end score test on the Project-1-21/GNU-LGPL-Test repository
+        """
+        gtoken = os.getenv("GITHUB_TOKEN")
+        if gtoken is None:
+            print("No Github Token set in environment")
+            return
+        github = Github(gtoken)
+        url = "Project-1-21/GNU-LGPL-Test"
+        repo = create_repo_object(github, url)
+        # Check responsiveness score
+        resp = get_responsiveness_score(repo)
+        self.assertEqual(resp, 0)
+        # Check license score
+        lic = get_license_score(repo)
+        self.assertEqual(lic, 1)
+        # Check ramp-up score
+        ramp_up = calculate_ramp_up(repo, url)
+        self.assertEqual(ramp_up, 0)
+        # Check correctness score
+        corr = calculate_correctness(repo)
+        self.assertEqual(corr, 0.4)
+        # Check busfactor score
+        bus = busfactor(repo)
+        self.assertEqual(bus, 0.025)
+        # Check update score
+        update = get_update_score(repo)
+        self.assertEqual(update, 0)
+        # Check net score
+        net_score = netscore([resp, lic, ramp_up, corr, bus, update])
+        self.assertEqual(net_score, 0.1)
+
+    def test_calc_score_4(self):
+        """
+        Performs a end-to-end score test on the oxidecomputer/hubris repository
+        """
+        gtoken = os.getenv("GITHUB_TOKEN")
+        if gtoken is None:
+            print("No Github Token set in environment")
+            return
+        github = Github(gtoken)
+        url = "oxidecomputer/hubris"
+        repo = create_repo_object(github, url)
+        # Check responsiveness score
+        resp = get_responsiveness_score(repo)
+        self.assertEqual(resp, 0.7)
+        # Check license score
+        lic = get_license_score(repo)
+        self.assertEqual(lic, 1)
+        # Check ramp-up score
+        ramp_up = calculate_ramp_up(repo, url)
+        self.assertEqual(ramp_up, 0.1)
+        # Check correctness score
+        corr = calculate_correctness(repo)
+        self.assertEqual(corr, 0.5)
+        # Check busfactor score
+        bus = busfactor(repo)
+        self.assertEqual(bus, 0.6)
+        # Check update score
+        update = get_update_score(repo)
+        self.assertEqual(update, 0)
+        # Check net score
+        net_score = netscore([resp, lic, ramp_up, corr, bus, update])
+        self.assertEqual(net_score, 0.5)
+
+    def test_calc_score_5(self):
+        """
+        Performs a end-to-end score test on the cloudinary repository
+        """
+        gtoken = os.getenv("GITHUB_TOKEN")
+        if gtoken is None:
+            print("No Github Token set in environment")
+            return
+        github = Github(gtoken)
+        url = "cloudinary/cloudinary_npm"
+        repo = create_repo_object(github, url)
+        # Check responsiveness score
+        resp = get_responsiveness_score(repo)
+        self.assertEqual(resp, 0.9)
+        # Check license score
+        lic = get_license_score(repo)
+        self.assertEqual(lic, 1)
+        # Check ramp-up score
+        ramp_up = calculate_ramp_up(repo, url)
+        self.assertEqual(ramp_up, 0.5)
+        # Check correctness score
+        corr = calculate_correctness(repo)
+        self.assertEqual(corr, 0.6)
+        # Check busfactor score
+        bus = busfactor(repo)
+        self.assertEqual(bus, 0.35)
+        # Check update score
+        update = get_update_score(repo)
+        self.assertEqual(update, 1)
+        # Check net score   
+        net_score = netscore([resp, lic, ramp_up, corr, bus, update])
+        self.assertEqual(net_score, 0.6)
+
 
 def del_rw(action, name, exc):
     """
