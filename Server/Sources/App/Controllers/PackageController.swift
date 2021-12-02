@@ -1,5 +1,5 @@
 //
-//  PackageIDController.swift
+//  PackageController.swift
 //  
 //
 //  Created by Charles Pisciotta on 12/2/21.
@@ -8,10 +8,10 @@
 import Foundation
 import Vapor
 
-struct PackageIDController: RouteCollection {
+struct PackageController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let package = routes.grouped("package")
-        package.post(use: create) // Create a package
+        package.post(use: create) // Create or ingest a package
         package.get(":id", use: index) // Get a package
         package.put(":id", use: update) // Update a package
         package.delete(":id", use: delete) // Deleta a package
@@ -19,7 +19,8 @@ struct PackageIDController: RouteCollection {
     }
     
     func create(req: Request) throws -> ProjectPackage.Metadata {
-        // TODO: Implement
+        // TODO: Implement create
+        // TODO: Implement ingest
         let package = try req.content.decode(ProjectPackage.self)
         return package.metadata
     }
