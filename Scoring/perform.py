@@ -51,7 +51,12 @@ def perform(urls, url_file):
 
     print(*column_values, sep=' ')
 
-    for i in range(len(urls)):
+    calc_scores(git, urls, raw_url_list)
+
+
+def calc_scores(git, urls, raw_url_list):
+    """Calculates scores of urls"""
+    for i in enumerate(urls):
         url = urls[i]
         raw_url = raw_url_list[i]
 
@@ -131,9 +136,8 @@ def get_responsiveness_score(git, url, testing=False):
         # git = Github(gtoken)
         repo = git.get_repo(url)
 
-        since = datetime.now() - timedelta(days=365)
-        openissues = repo.get_issues(state="open", since=since)
-        closedissues = repo.get_issues(state="closed", since=since)
+        openissues = repo.get_issues(state="open", since=datetime.now() - timedelta(days=365))
+        closedissues = repo.get_issues(state="closed", since=datetime.now() - timedelta(days=365))
 
         issue_ratio = len(closedissues.get_page(0)) / (
             len(openissues.get_page(0)) + len(closedissues.get_page(0))
@@ -219,6 +223,18 @@ def get_license_score(git, url, testing=False):
 # Reference: https://github.com/PyGithub/PyGithub/pull/734/files#
 
 
+def clone_repo(url):
+    """Clones given git repository"""
+    clone_command = "git clone https://github.com/" + url + ".git" + " -q"
+    os.system(clone_command)
+
+
+def delete_repo(directory):
+    """Deletes cloned directory"""
+    delete_clone_command = "rm -rf " + directory
+    os.system(delete_clone_command)
+
+
 def calculate_ramp_up(git, url, testing=False):
     """Calculates the ramp-up score for a given repository."""
     score = 0
@@ -231,10 +247,8 @@ def calculate_ramp_up(git, url, testing=False):
         sys.exit(1)
     # open largest file of source code, parse line by line for comments, calculate percentage
     # 30% of score
-    clone_command = "git clone https://github.com/" + url + ".git" + " -q"
     directory = url.split("/")[1]
-    delete_clone_command = "rm -rf " + directory
-    os.system(clone_command)
+    clone_repo(url)
 
     # find largest file
     repo_dir = os.getcwd() + "/" + directory
@@ -247,7 +261,7 @@ def calculate_ramp_up(git, url, testing=False):
     # https://thispointer.com/python-find-the-largest-file-in-a-directory/
     files = list(filter_obj)
     if len(files) < 1:
-        os.system(delete_clone_command)
+        delete_repo(directory)
         return 0
     max_size = os.path.getsize(files[0])
     max_file = files[0]
@@ -261,6 +275,18 @@ def calculate_ramp_up(git, url, testing=False):
         file_content = file.read().splitlines()
 
     # get commented lines
+    score += get_comments_subscore(file_content)
+
+    delete_repo(directory)
+
+    score += get_readme_subscore(repo)
+
+    return round(score, 1)
+
+
+def get_comments_subscore(file_content):
+    """Gets comments subscore of ramp up score based on number of comments in file"""
+    subscore = 0
     total_lines = len(file_content)
     commented_lines = sum(
         1
@@ -270,25 +296,28 @@ def calculate_ramp_up(git, url, testing=False):
 
     percentage = commented_lines / total_lines
     if percentage >= 0.2:
-        score += 0.2
+        subscore += 0.2
     else:
-        score += percentage
-    delete_clone_command = "rm -rf " + directory
-    os.system(delete_clone_command)
+        subscore += percentage
+    return subscore
 
+
+def get_readme_subscore(repo):
+    """Gets subscore of ramp-up score based on length of readme"""
     # find length of README
     # 70% of score
+    subscore = 0
     try:
         readme = repo.get_contents("README.md")
         lines = len(readme.decoded_content.splitlines())
         if lines > 500:
-            score += 0.7
+            subscore += 0.7
         else:
-            score += 0.7 * (lines / 500)
+            subscore += 0.7 * (lines / 500)
     except GithubException as exception:
         print(exception)
+    return subscore
 
-    return round(score, 1)
 
 
 def calculate_correctness(github, url, testing=False):
@@ -399,16 +428,3 @@ def netscore(responsiveness, licensing, rampup, correctness, busfact):
     score = busfact + responsiveness + correctness + rampup
 
     return round(score, 1)
-
-
-def main():
-    """Run scoring functionality."""
-    urls = parse()
-    # Responsiveness(urls)
-
-    perform(urls)
-    # getLicense(urls)
-
-
-if __name__ == "__main__":
-    main()

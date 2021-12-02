@@ -1,3 +1,5 @@
+"""This module gets django urls"""
+
 from django.urls import path
 from helloapp import views
 
