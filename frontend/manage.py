@@ -5,6 +5,7 @@ import sys
 
 
 def main():
+    """main function to run django command-line utility"""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'helloproject.settings')
     try:
         from django.core.management import execute_from_command_line
