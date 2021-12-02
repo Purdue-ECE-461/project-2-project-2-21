@@ -24,8 +24,8 @@ class Authenticator:
         admin_hash = self.admin_tokens[admin_username].encode('utf-8')
 
         # admin_token passes, register the new user. If user already exists, overwrite password
-        if self.check_hash(admin_token, admin_hash):
-            user_hash = self.get_hash(password)
+        if bcrypt.checkpw(admin_token, admin_hash):
+            user_hash = bcrypt.hashpw(password, bcrypt.gensalt(12)).decode('utf8')
             self.database[username] = user_hash
             return True
 
@@ -37,10 +37,10 @@ class Authenticator:
         """
         Registers new admin. USE WITH CAUTION. WILL LIKELY REQUIRE FUTURE CHANGES FOR SECURITY.
         """
-        admin_hash = self.get_hash(admin_password)
+        admin_hash = bcrypt.hashpw(admin_password, bcrypt.gensalt(12)).decode('utf8')
         self.database[admin_username] = admin_hash
         token = "THIS IS A TEMP TOKEN, FIX THIS LATER".encode('utf-8')
-        token_hash = self.get_hash(token)
+        token_hash = bcrypt.hashpw(token, bcrypt.gensalt(12)).decode('utf8')
         self.admin_tokens[admin_username] = token_hash
         return token
 
@@ -52,18 +52,3 @@ class Authenticator:
             del self.admin_tokens[username]
         if username in self.database:
             del self.database[username]
-
-    def get_hash(self, password):
-        """
-        Hash a password or token for the first time using bcrypt.
-        """
-        pwhash = bcrypt.hashpw(password, bcrypt.gensalt(12))
-        decoded = pwhash.decode('utf8')
-        return decoded
-
-    def check_hash(self, plaintext, hash_value):
-        """
-        Checks hashed password or token.
-        """
-        checked_password = bcrypt.checkpw(plaintext, hash_value)
-        return checked_password
