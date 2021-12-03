@@ -14,7 +14,7 @@ struct PackageHistoryItem: Content, Codable {
     let packageMetadata: ProjectPackage.Metadata
     let action: PackageHistoryItem.Action
     
-    #if DEBUG
+    // TODO: Remove this init
     init(user: AuthenticationRequest.User,
          date: String,
          packageMetadata: ProjectPackage.Metadata,
@@ -24,7 +24,6 @@ struct PackageHistoryItem: Content, Codable {
         self.packageMetadata = packageMetadata
         self.action = Action(rawValue: action)!
     }
-    #endif
     
     enum CodingKeys: String, CodingKey {
         case user = "User"
@@ -60,7 +59,7 @@ extension PackageHistoryItem {
     }
 }
 
-#if DEBUG
+// TODO: Remove this
 extension PackageHistoryItem {
     static let item = PackageHistoryItem(
         user: AuthenticationRequest.User(
@@ -131,4 +130,3 @@ extension PackageHistoryItem {
         )
     ]
 }
-#endif

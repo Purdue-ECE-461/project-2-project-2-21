@@ -62,7 +62,7 @@ extension PackageScore: Codable {
     }
 }
 
-#if DEBUG
+// TODO: Remove this mock object
 extension PackageScore {
     static let mock = PackageScore(
         rampUp: 0.89,
@@ -73,4 +73,3 @@ extension PackageScore {
         goodPinningPractice: 0.65
     )
 }
-#endif

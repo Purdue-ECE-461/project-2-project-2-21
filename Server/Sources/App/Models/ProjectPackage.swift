@@ -37,7 +37,7 @@ extension ProjectPackage {
     }
 }
 
-#if DEBUG
+// TODO: Remove this mock object
 extension ProjectPackage {
     static let mock = ProjectPackage(
         metadata: Metadata(
@@ -51,4 +51,3 @@ extension ProjectPackage {
         )
     )
 }
-#endif

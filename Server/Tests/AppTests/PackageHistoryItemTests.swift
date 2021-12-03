@@ -43,10 +43,9 @@ final class PackageHistoryItemTests: XCTestCase {
         XCTAssertEqual(items.count, 4)
     }
     
-    #if DEBUG
+    // TODO: Remove this
     func testMockNotNil() throws {
         // Checks the constructor with force unwrapping
         _ = PackageHistoryItem.item
     }
-    #endif
 }
