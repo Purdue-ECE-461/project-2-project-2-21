@@ -15,7 +15,7 @@ struct AuthController: RouteCollection {
     }
     
     func create(req: Request) throws -> Response {
-        let authRequest = try req.content.decode(AuthenticationRequest.self)
+        let _ = try req.content.decode(AuthenticationRequest.self)
         // TODO: Implement authentication
         
         var headers = HTTPHeaders()
