@@ -16,11 +16,11 @@ struct PackageHistoryItem: Content, Codable {
     
     // TODO: Remove this init
     init(user: AuthenticationRequest.User,
-         date: String,
+         date: Date,
          packageMetadata: ProjectPackage.Metadata,
          action: String) {
         self.user = user
-        self.date = try! Date(date, strategy: .iso8601)
+        self.date = date
         self.packageMetadata = packageMetadata
         self.action = Action(rawValue: action)!
     }
@@ -66,7 +66,7 @@ extension PackageHistoryItem {
             name: "Paschal Amusuo",
             isAdmin: true
         ),
-        date: "2021-11-21T01:11:11Z",
+        date: Date(),
         packageMetadata: ProjectPackage.Metadata(
             name: "Underscore",
             version: "1.0.0",
@@ -81,7 +81,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: "2021-11-21T01:11:11Z",
+            date: Date().addingTimeInterval(-500),
             packageMetadata: ProjectPackage.Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -94,7 +94,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: "2021-11-20T01:11:11Z",
+            date: Date().addingTimeInterval(-1000),
             packageMetadata: ProjectPackage.Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -107,7 +107,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: "2021-11-19T01:11:11Z",
+            date: Date().addingTimeInterval(-1500),
             packageMetadata: ProjectPackage.Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -120,7 +120,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: "2021-11-18T01:11:11Z",
+            date: Date().addingTimeInterval(-2000),
             packageMetadata: ProjectPackage.Metadata(
                 name: "Underscore",
                 version: "1.0.0",
