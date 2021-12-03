@@ -29,7 +29,7 @@ extension AuthenticationRequest {
     }
 }
 
-#if DEBUG
+// TODO: Remove this
 extension AuthenticationRequest {
     static let mock = AuthenticationRequest(
         user: User(
@@ -41,4 +41,3 @@ extension AuthenticationRequest {
         )
     )
 }
-#endif
