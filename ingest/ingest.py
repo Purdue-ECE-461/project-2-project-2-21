@@ -37,7 +37,6 @@ def ingest_package_github(github_url, subpath_name, database_dir=PACKAGE_DIR):
     # Clone repo
     Repo.clone_from(github_url, dest_name)
     zip_package(subpath_name, database_dir=database_dir)
-    remove_package_folder(subpath_name, database_dir=database_dir)
 
 
 

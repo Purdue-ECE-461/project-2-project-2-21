@@ -329,7 +329,7 @@ def calculate_correctness(repo):
         [pull for pull in pulls if pull.created_at.date() >= six_months_ago]
     )
     if recent_pulls <= 100:
-        score += 0.4 - (recent_pulls / 250)
+        score += 0.4 * (recent_pulls / 250)
 
     return round(score, 1)
 
