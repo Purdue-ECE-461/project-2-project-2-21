@@ -1,5 +1,7 @@
+"""This module handles django urls"""
+
 from django.urls import path
-from . import views
+import views
 
 app_name = 'proj2site'
 urlpatterns = [

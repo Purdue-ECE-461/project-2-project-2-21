@@ -3,7 +3,6 @@ import unittest
 import time
 import os
 import stat
-import shutil
 from github import Github
 from perform import (
     calculate_correctness,
@@ -15,8 +14,6 @@ from perform import (
     netscore,
     create_repo_object
 )
-import authenticate
-import ingest
 
 
 class Tester(unittest.TestCase):
@@ -308,88 +305,6 @@ class Tester(unittest.TestCase):
         returnval = get_license_score(repo)
         self.assertEqual(returnval, 0)
 
-    def test_register_admin(self):
-        """
-        Tests registration of admin in authentication db
-        """
-        auth = authenticate.Authenticator()
-        tok = auth.register_admin("leij".encode('utf-8'), "unbreakable password".encode('utf-8'))
-        self.assertNotEqual(len(auth.database), 0, "No users have been registered!")
-        self.assertNotEqual(len(auth.admin_tokens), 0, "No admins have been registered!")
-        self.assertIsNotNone(tok)
-
-    def test_register_user(self):
-        """
-        Tests registration of user in authentication db
-        """
-        auth = authenticate.Authenticator()
-        tok = auth.register_admin("leij".encode('utf-8'), "unbreakable password".encode('utf-8'))
-        auth.register_user("leij".encode('utf-8'), tok, "fake user".encode('utf-8'),
-                               "breakable password".encode('utf-8'))
-        self.assertNotEqual(auth.database["fake user".encode('utf-8')], None)
-
-    def test_delete_user(self):
-        """
-        Tests deletion of user from authentication db
-        """
-        auth = authenticate.Authenticator()
-        tok = auth.register_admin("leij".encode('utf-8'), "unbreakable password".encode('utf-8'))
-        auth.register_user("leij".encode('utf-8'), tok, "asbf".encode('utf-8'),
-                                "breakable password".encode('utf-8'))
-        auth.delete_user("asbf".encode('utf-8'))
-        try:
-            auth.database["asbf".encode('utf-8')]
-        except KeyError as exception:
-            self.assertNotEqual(exception, None, "User failed to delete")
-
-    def test_create_pkgdir(self):
-        """
-        Tests creation of package directory
-        """
-        if os.path.isdir("./test_dir"):
-            shutil.rmtree("./test_dir", onerror=del_rw)
-            ingest.make_package_dir(database_dir="test_dir")
-            self.assertTrue(os.path.isdir("./test_dir"))
-            shutil.rmtree("./test_dir")
-
-    def test_remove_package(self):
-        """
-        Tests removal of a package
-        """
-        if os.path.isdir("./test_dir"):
-            shutil.rmtree("./test_dir", onerror=del_rw)
-            ingest.make_package_dir(database_dir="test_dir")
-            os.mkdir("./test_dir/package_1")
-            ingest.remove_package_folder("package_1", database_dir="test_dir")
-            self.assertFalse(os.path.isdir("./test_dir/package_1"))
-            shutil.rmtree("./test_dir")
-
-    def test_ingest_local(self):
-        """
-        Tests ingestion of a local package
-        """
-        if os.path.isdir("./test_dir"):
-            shutil.rmtree("./test_dir", onerror=del_rw)
-            ingest.make_package_dir(database_dir="test_dir")
-            local_path = "./temp_directory"
-            os.mkdir(local_path)
-            ingest.ingest_package_local(local_path, "test_bin", database_dir="test_dir")
-            os.rmdir(local_path)
-            self.assertTrue(os.path.isdir("./test_dir/test_bin"))
-            shutil.rmtree("./test_dir")
-
-    def test_ingest_github(self):
-        """
-        Tests ingestion of a package given github URL
-        """
-        if os.path.isdir("./test_dir"):
-            shutil.rmtree("./test_dir", onerror=del_rw)
-        ingest.make_package_dir(database_dir="test_dir")
-        url = "https://github.com/Project-1-21/GNU-LGPL-Test"
-        ingest.ingest_package_github(url, "test_package", database_dir="test_dir")
-        self.assertTrue(os.path.isfile("./test_dir/test_package.zip"))
-        shutil.rmtree("./test_dir", onerror=del_rw)
-
     def test_update_score_1(self):
         """
         Tests update score using expressjs
@@ -454,7 +369,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(ramp_up, 0.1)
         # Check correctness score
         corr = calculate_correctness(repo)
-        self.assertEqual(corr, 0.7)
+        self.assertEqual(corr, 0.4)
         # Check busfactor score
         bus = busfactor(repo)
         self.assertEqual(bus, 0.35)
@@ -520,7 +435,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(ramp_up, 0)
         # Check correctness score
         corr = calculate_correctness(repo)
-        self.assertEqual(corr, 0.4)
+        self.assertEqual(corr, 0)
         # Check busfactor score
         bus = busfactor(repo)
         self.assertEqual(bus, 0.025)
@@ -586,16 +501,50 @@ class Tester(unittest.TestCase):
         self.assertEqual(ramp_up, 0.5)
         # Check correctness score
         corr = calculate_correctness(repo)
-        self.assertEqual(corr, 0.6)
+        self.assertEqual(corr, 0.3)
         # Check busfactor score
         bus = busfactor(repo)
         self.assertEqual(bus, 0.35)
         # Check update score
         update = get_update_score(repo)
         self.assertEqual(update, 1)
-        # Check net score   
+        # Check net score
         net_score = netscore([resp, lic, ramp_up, corr, bus, update])
         self.assertEqual(net_score, 0.6)
+
+    def test_calc_score_6(self):
+        """
+        Performs a end-to-end score test on an empty repository
+        """
+        gtoken = os.getenv("GITHUB_TOKEN")
+        if gtoken is None:
+            print("No Github Token set in environment")
+            return
+        github = Github(gtoken)
+        url = "lei56/test_empty_repo"
+        repo = create_repo_object(github, url)
+        # Check responsiveness score
+        resp = get_responsiveness_score(repo)
+        self.assertEqual(resp, 0)
+        # Check license score
+        lic = get_license_score(repo)
+        self.assertEqual(lic, 0)
+        # Check ramp-up score
+        ramp_up = calculate_ramp_up(repo, url)
+        self.assertEqual(ramp_up, 0)
+        # Check correctness score
+        corr = calculate_correctness(repo)
+        self.assertEqual(corr, 0)
+        # Check busfactor score
+        bus = busfactor(repo)
+        self.assertEqual(bus, 0)
+        # Check update score
+        update = get_update_score(repo)
+        self.assertEqual(update, 0)
+        # Check net score
+        net_score = netscore([resp, lic, ramp_up, corr, bus, update])
+        self.assertEqual(net_score, 0)
+
 
 
 def del_rw(action, name, exc):
