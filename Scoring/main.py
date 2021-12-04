@@ -18,3 +18,6 @@ def score_firestore_change(data, context):
     
     print('\nNew value:')
     print(json.dumps(data["value"]))
+    
+    perform.perform_single("https://github.com/expressjs/express")
+    print("success!!")
