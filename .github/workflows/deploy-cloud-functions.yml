@@ -44,5 +44,5 @@ jobs:
           service_account_email: updated-461-project-2@appspot.gserviceaccount.com 
           timeout: 300
           event_trigger_type: providers/cloud.firestore/eventTypes/document.create
-          deploy_timeout: 520
+          event_trigger_resource: projects/updated-461-project-2/databases/packages
           
