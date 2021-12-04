@@ -22,7 +22,7 @@ def perform_single(url):
         print("No Github token specified in environment")
         return
      
-        column_values = [
+    column_values = [
         "URL",
         "NET_SCORE",
         "RAMP_UP_SCORE",
