@@ -40,7 +40,7 @@ jobs:
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
           project_id: updated-461-project-2
           description: "Scores modules upon document creation"
-          source_dir: /Scoring/
+          source_dir: Scoring
           service_account_email: updated-461-project-2@appspot.gserviceaccount.com 
           timeout: 300
           event_trigger_type: providers/cloud.firestore/eventTypes/document.create
