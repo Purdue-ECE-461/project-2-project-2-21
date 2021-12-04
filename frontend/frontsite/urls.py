@@ -7,8 +7,8 @@ urlpatterns = [
     path('',views.index,name='index'),
     path('upload/',views.upload,name='upload'),
     path('download/',views.download,name='download'),
-    path('packages/',views.package_list,name='package_list'),
-    path('packages/upload/',views.upload_package,name='upload_package'),
+    path('packages/',views.PackageListView.as_view(),name='package_list'),
+    path('packages/upload/',views.UploadPackageView.as_view(),name='upload_package'),
 ]
 
 if settings.DEBUG:

@@ -1,21 +1,39 @@
-{% block content %}
-    <h2>Package</h2>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-    <table class="table">
+<head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="{% static 'styles.css' %}" rel="stylesheet" type="text/css" />
+    <title>Package List</title>
+</head>
+<body>
+    <h2>Package</h2>
+    <p>
+        <a href="{% url 'upload_package' %}">Upload Package</a>
+    </p>
+
+    <table class="package_table">
+        <caption>Package List</caption>
         <thead>
             <tr>
-                <th>Title</th>
-                <th>Package</th>
+                <th id='title'>Title</th>
+                <th id='date'>Date</td>
+                <th id='package'>Package</th>
             </tr>
         </thead>
         <tbody>
             {% for package in packages %}
                 <tr>
-                    <td>{{ package.title }}</td>
-                    <td>{{ package.uppackage }}</td>
+                    <td headers='title'>{{ package.title }}</td>
+                    <td headers='date'>{{ package.date }}</td>
+                    <td headers='package'>{{ package.uppackage }}</td>
+                    <td>
+                        <a href="{{ package.uppackage.url }}" target='blank'>Download</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-
-{% endblock %}
+</body>
