@@ -30,19 +30,16 @@ jobs:
         with:
           credentials_json: ${{ secrets.gcp_credentials }}
       # Deploys code to cloud functions
-      - name: deploy
+      - id: deploy
         uses: google-github-actions/deploy-cloud-functions@v0.6.0
         with:
           name: scoring-func
           runtime: python39
           entry_point: score_firestore_change
-          region: us-central1
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
           project_id: updated-461-project-2
           description: "Scores modules upon document creation"
           source_dir: Scoring
-          service_account_email: updated-461-project-2@appspot.gserviceaccount.com 
-          timeout: 300
           event_trigger_type: providers/cloud.firestore/eventTypes/document.create
-          event_trigger_resource: projects/updated-461-project-2/databases/packages
+          event_trigger_resource: projects/updated-461-project-2/databases/(default)/documents/packages
           
