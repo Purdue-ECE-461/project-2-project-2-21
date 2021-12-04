@@ -41,5 +41,5 @@ jobs:
           description: "Scores modules upon document creation"
           source_dir: Scoring
           event_trigger_type: providers/cloud.firestore/eventTypes/document.create
-          event_trigger_resource: projects/updated-461-project-2/databases/(default)/documents/packages
+          event_trigger_resource: projects/updated-461-project-2/databases/(default)/documents/packages/{packageID}
           
