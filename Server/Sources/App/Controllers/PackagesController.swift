@@ -25,11 +25,13 @@ struct PackagesController: RouteCollection {
     
     func index(request: Request) async -> Response {
         // TODO: Add offset
-        
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "application/json")
     
         do {
+            // TODO: Handle requested packages
+            let requestedPackages = try request.content.decode([ProjectPackageRequest].self)
+            
             let documents: [Firestore.Document<FirestoreProjectPackage>] = try await client.listDocuments(path: "packages").get()
             let packages = documents.compactMap { $0.fields?.asProjectPackage() }
             let documentsMetadata = packages.map(\.metadata)

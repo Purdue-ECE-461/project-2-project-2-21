@@ -9,6 +9,35 @@ import Foundation
 import Vapor
 import VaporFirestore
 
+struct ProjectPackageRequest: Content, Codable {
+    let version: String
+    let name: String
+    
+    enum CodingKeys: String, CodingKey {
+        case version = "Version"
+        case name = "Name"
+    }
+}
+
+// TODO: Remove this
+extension ProjectPackageRequest {
+    static let mockList: [ProjectPackageRequest] = [
+        ProjectPackageRequest(
+            version: "1.2.3",
+            name: "Underscore"
+        ),
+        ProjectPackageRequest(
+            version: "1.2.3-2.1.0",
+            name: "Lodash"
+        ),
+        ProjectPackageRequest(
+            version: "^1.2.3",
+            name: "React"
+        )
+    ]
+}
+
+
 struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
     var id: String

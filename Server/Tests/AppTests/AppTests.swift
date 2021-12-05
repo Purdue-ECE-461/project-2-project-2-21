@@ -162,5 +162,12 @@ final class AppTests: XCTestCase {
         })
     }
     
-    
+    func testPOSTGetPackages() throws {
+        try app.test(.POST, "packages", beforeRequest: { req in
+            let packagesRequest = ProjectPackageRequest.mockList
+            try req.content.encode(packagesRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+        })
+    }
 }
