@@ -89,10 +89,25 @@ struct PackageController: RouteCollection {
         }
     }
     
-    func delete(request: Request) throws -> String {
-        // TODO: Implement
-        let package = try request.content.decode(ProjectPackage.self)
-        return "Should delete package named \(package.metadata.name)!"
+    func delete(request: Request) async -> Response {
+        var headers = HTTPHeaders()
+        headers.add(name: .contentType, value: "text/plain")
+        
+        if let packageID = request.parameters.get("id") {
+            let path = "packages/\(packageID)"
+            
+            // Check package exists
+            // Delete package
+            // Check empty dictionary
+            // TODO: Determine if empty dictionary returned on failure/succses
+            if let _: Firestore.Document<FirestoreProjectPackage> = try? await client.getDocument(path: path).get(),
+               let deleteResponse = try? await client.deleteDocument(path: path).get(),
+               deleteResponse.isEmpty {
+                return Response(status: .ok, headers: headers)
+            }
+        }
+        
+        return Response(status: .badRequest, headers: headers)
     }
     
     func rate(request: Request) throws -> PackageScore {

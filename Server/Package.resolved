@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/vapor/routing-kit.git",
         "state": {
           "branch": null,
-          "revision": "a0801a36a6ad501d5ad6285cbcd4774de6b0a734",
-          "version": "4.3.0"
+          "revision": "5603b81ceb744b8318feab1e60943704977a866b",
+          "version": "4.3.1"
         }
       },
       {
@@ -159,7 +159,7 @@
         "repositoryURL": "https://github.com/cpisciotta/vapor-firestore.git",
         "state": {
           "branch": "master",
-          "revision": "78920ab2e3ff8739ca2c1bc2e437d246f18ce314",
+          "revision": "e3ae169141d509cf63d67866f1b93c7155f327b2",
           "version": null
         }
       },

@@ -92,6 +92,13 @@ final class AppTests: XCTestCase {
         })
     }
     
+    func testAttemptDELETENonExistentPackageResponseByID() throws {
+        try app.test(.DELETE, "package/does_not_exist", afterResponse: { res in
+            XCTAssertEqual(res.status, .badRequest)
+            XCTAssertEqual(res.headers.contentType, .plainText)
+        })
+    }
+    
     func testGETRate() throws {
         try app.test(.GET, "package/underscore/rate", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
