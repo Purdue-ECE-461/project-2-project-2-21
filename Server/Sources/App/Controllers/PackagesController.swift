@@ -19,7 +19,7 @@ struct PackagesController: RouteCollection {
     
     func boot(routes: RoutesBuilder) throws {
         routes.group("packages") { route in
-            route.get(use: index)
+            route.post(use: index)
         }
     }
     
