@@ -101,8 +101,9 @@ struct PackageController: RouteCollection {
             // Check empty dictionary
             // TODO: Determine if empty dictionary returned on failure/succses
             if let _: Firestore.Document<FirestoreProjectPackage> = try? await client.getDocument(path: path).get(),
-               let deleteResponse = try? await client.deleteDocument(path: path).get(),
+               let deleteResponse: [String: String] = try? await client.deleteDocument(path: path).get(),
                deleteResponse.isEmpty {
+                // TODO: Determine if actual success
                 return Response(status: .ok, headers: headers)
             }
         }
