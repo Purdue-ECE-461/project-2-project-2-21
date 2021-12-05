@@ -14,6 +14,33 @@ from dateutil.relativedelta import relativedelta
 # os.environ["$LOG_FILE"] = "1"
 # os.environ["GITHUB_TOKEN"] = "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"
 
+def perform_single(url):
+    """Performs scoring for a single given url"""
+    gtoken = os.getenv("GITHUB_TOKEN")
+    git = Github(gtoken)
+    if gtoken is None:
+        print("No Github token specified in environment")
+        return
+     
+    column_values = [
+        "URL",
+        "NET_SCORE",
+        "RAMP_UP_SCORE",
+        "CORRECTNESS_SCORE",
+        "BUS_FACTOR_SCORE",
+        "RESPONSIVE_MAINTAINER_SCORE",
+        "LICENSE_SCORE",
+        "UPDATE_SCORE"
+    ]
+
+    print(*column_values, sep=" ")
+    
+    urls = [parse_single(url)]
+    raw_url_list = [url]
+
+    calc_scores(git, urls, raw_url_list)
+        
+     
 
 def perform(urls, url_file):
     """Perform scoring for the given urls"""
@@ -91,6 +118,17 @@ def calc_scores(git, urls, raw_url_list):
             + str(update_score)
         )
 
+def parse_single(url):
+    """Parses a single given url"""
+    if url.startswith("https://www.npmjs"):
+        req = requests.get(url)
+        soup = BeautifulSoup(req.content, "html.parser")
+        full_url = soup.find_all("span")[-1].get_text()
+        return full_url.replace("github.com/", "")
+    elif url.startswith("https://github.com/"):
+        return url.replace("https://github.com/", "")
+    else:
+        return 0
 
 def parse(url_file):
     """URL parser function"""
