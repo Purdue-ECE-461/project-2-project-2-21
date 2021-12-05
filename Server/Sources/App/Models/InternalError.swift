@@ -27,4 +27,9 @@ extension InternalError {
         code: -1,
         message: "An error occurred while retrieving package"
     )
+    
+    static let unexpectedError = InternalError(
+        code: -1,
+        message: "An unexpected error occurred"
+    )
 }
