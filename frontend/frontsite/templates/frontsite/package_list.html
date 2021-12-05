@@ -21,6 +21,7 @@
                 <th id='title'>Title</th>
                 <th id='date'>Date</td>
                 <th id='package'>Package</th>
+                <th id='delete'>Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +32,12 @@
                     <td headers='package'>{{ package.uppackage }}</td>
                     <td>
                         <a href="{{ package.uppackage.url }}" target='blank'>Download</a>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'delete_package' package.pk %}">
+                            {% csrf_token %}
+                            <button type='submit'>Delete</button>
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
