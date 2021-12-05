@@ -14,30 +14,45 @@ final class AppTests: XCTestCase {
         app.shutdown()
     }
     
+    // TODO: Add create package
     func testCreatePackage() throws {
-        guard let fileURL = Bundle.module.url(forResource: "underscore", withExtension: "json", subdirectory: "MockData/Packages") else {
+        guard let fileURL = Bundle.module.url(forResource: "temporary", withExtension: "json", subdirectory: "MockData/Packages") else {
             XCTFail("File not found.")
             return
         }
-        
+
         let jsonData = try Data(contentsOf: fileURL)
         let package = try JSONDecoder().decode(ProjectPackage.self, from: jsonData)
 
         try app.test(.POST, "package", beforeRequest: { req in
             try req.content.encode(package)
         }, afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.status, .created)
             XCTAssertEqual(res.headers.contentType, .json)
-            
+
             let metadata = try res.content.decode(ProjectPackage.Metadata.self)
-            XCTAssertEqual(package.metadata, metadata)
+            XCTAssertEqual(package.metadata.id, metadata.id)
+            XCTAssertEqual(package.metadata.version, metadata.version)
+            XCTAssertEqual(package.metadata.name, metadata.name)
+            
+            try app.test(.DELETE, "temporary")
         })
     }
     
-    func testGETUnderscorePackageResponseByID() throws {
+    func testGETExistentPackagePackageResponseByID() throws {
         try app.test(.GET, "package/underscore", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
+        })
+    }
+    
+    func testGETNonExistentPackagePackageResponseByID() throws {
+        try app.test(.GET, "package/does_not_exist", afterResponse: { res in
+            XCTAssertEqual(res.status, .internalServerError)
+            XCTAssertEqual(res.headers.contentType, .json)
+            let errorResponse = try res.content.decode(InternalError.self)
+            XCTAssertEqual(errorResponse.code, -1)
+            XCTAssertEqual(errorResponse.message, "An error occurred while retrieving package")
         })
     }
     
@@ -47,19 +62,33 @@ final class AppTests: XCTestCase {
             try req.content.encode(package)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-//            XCTAssertEqual(res.headers.contentType, .json)
-            print(try res.content.decode(String.self))
+            XCTAssertEqual(res.headers.contentType, .plainText)
         })
     }
     
-    func testDELETEUnderscorePackageResponseByID() throws {
-        try app.test(.DELETE, "package/underscore", beforeRequest: { req in
+//    func testPUTPackageResponseByIDError() throws {
+//        try app.test(.PUT, "package/does_not_exist", beforeRequest: { req in
+//            let package = ProjectPackage.doesNotExist
+//            try req.content.encode(package)
+//        }, afterResponse: { res in
+//            XCTAssertEqual(res.status, .internalServerError)
+//            XCTAssertEqual(res.headers.contentType, .plainText)
+//        })
+//    }
+    
+    func testDELETETemporaryPackageResponseByID() throws {
+        // TODO: Create a deletable object
+        
+        try app.test(.POST, "package") { req in
+            try req.content.encode(ProjectPackage.temporary)
+        }
+
+        try app.test(.DELETE, "package/temporary", beforeRequest: { req in
             let package = ProjectPackage.mock
             try req.content.encode(package)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-//            XCTAssertEqual(res.headers.contentType, .json)
-            print(try res.content.decode(String.self))
+            XCTAssertEqual(res.headers.contentType, .plainText)
         })
     }
     

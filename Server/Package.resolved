@@ -29,6 +29,24 @@
         }
       },
       {
+        "package": "jwt",
+        "repositoryURL": "https://github.com/vapor/jwt.git",
+        "state": {
+          "branch": null,
+          "revision": "f18aa4f69d9ec781d79b7b89352de326f82e17a9",
+          "version": "4.1.0"
+        }
+      },
+      {
+        "package": "jwt-kit",
+        "repositoryURL": "https://github.com/vapor/jwt-kit.git",
+        "state": {
+          "branch": null,
+          "revision": "1822bb0abf0a31a4b5078ec19061c548835253b5",
+          "version": "4.3.0"
+        }
+      },
+      {
         "package": "multipart-kit",
         "repositoryURL": "https://github.com/vapor/multipart-kit.git",
         "state": {
@@ -134,6 +152,15 @@
           "branch": null,
           "revision": "6a5a3b5244d39e2614382c77ddf62e63b712ad06",
           "version": "4.53.0"
+        }
+      },
+      {
+        "package": "vapor-firestore",
+        "repositoryURL": "https://github.com/cpisciotta/vapor-firestore.git",
+        "state": {
+          "branch": "master",
+          "revision": "78920ab2e3ff8739ca2c1bc2e437d246f18ce314",
+          "version": null
         }
       },
       {
