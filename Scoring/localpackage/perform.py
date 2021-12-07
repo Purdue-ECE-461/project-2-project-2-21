@@ -38,8 +38,9 @@ def perform_single(url):
     urls = [parse_single(url)]
     raw_url_list = [url]
 
-    calc_scores(git, urls, raw_url_list)
+    ru, corr, bf, resp, lic, upd = calc_scores(git, urls, raw_url_list)
         
+    return ru, corr, bf, resp, lic, upd
      
 
 def perform(urls, url_file):
@@ -117,6 +118,8 @@ def calc_scores(git, urls, raw_url_list):
             + " "
             + str(update_score)
         )
+    return ramp_up_score, correctness_score, bus_factor, responsiveness_score, license_score, update_score
+           
 
 def parse_single(url):
     """Parses a single given url"""
