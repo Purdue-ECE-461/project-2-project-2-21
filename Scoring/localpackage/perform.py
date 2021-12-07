@@ -20,8 +20,8 @@ def perform_single(url):
     git = Github(gtoken)
     if gtoken is None:
         print("No Github token specified in environment")
-        return
-     
+        return 0, 0, 0, 0, 0, 0
+
     column_values = [
         "URL",
         "NET_SCORE",
@@ -34,14 +34,14 @@ def perform_single(url):
     ]
 
     print(*column_values, sep=" ")
-    
+
     urls = [parse_single(url)]
     raw_url_list = [url]
 
-    ru, corr, bf, resp, lic, upd = calc_scores(git, urls, raw_url_list)
-        
-    return ru, corr, bf, resp, lic, upd
-     
+    r_u,corr,b_f,resp,lic,upd = calc_scores(git, urls, raw_url_list)
+
+    return r_u, corr, b_f, resp, lic, upd
+
 
 def perform(urls, url_file):
     """Perform scoring for the given urls"""
@@ -84,54 +84,53 @@ def calc_scores(git, urls, raw_url_list):
         repo = create_repo_object(git, url)
 
         logging.info("Responsiveness calculation started..")
-        responsiveness_score = get_responsiveness_score(repo)
+        responsiveness = get_responsiveness_score(repo)
         logging.info("Responsiveness score calculation success")
         license_score = get_license_score(repo)
         logging.info("License score calculation success")
-        ramp_up_score = calculate_ramp_up(repo, url)
-        correctness_score = calculate_correctness(repo)
+        ramp_up = calculate_ramp_up(repo, url)
+        correctness = calculate_correctness(repo)
         bus_factor = busfactor(repo)
-        update_score = get_update_score(repo)
+        update = get_update_score(repo)
 
         net_score = netscore(
-            [responsiveness_score,
+            [responsiveness,
             license_score,
-            ramp_up_score,
-            correctness_score,
+            ramp_up,
+            correctness,
             bus_factor,
-            update_score]
+            update]
         )
         print(
             raw_url
             + " "
             + str(net_score)
             + " "
-            + str(ramp_up_score)
+            + str(ramp_up)
             + " "
-            + str(correctness_score)
+            + str(correctness)
             + " "
             + str(bus_factor)
             + " "
-            + str(responsiveness_score)
+            + str(responsiveness)
             + " "
             + str(license_score)
             + " "
-            + str(update_score)
+            + str(update)
         )
-    return ramp_up_score, correctness_score, bus_factor, responsiveness_score, license_score, update_score
-           
+    return ramp_up, correctness, bus_factor, responsiveness, license_score, update
 
 def parse_single(url):
     """Parses a single given url"""
+    ret_val = 0
     if url.startswith("https://www.npmjs"):
         req = requests.get(url)
         soup = BeautifulSoup(req.content, "html.parser")
         full_url = soup.find_all("span")[-1].get_text()
-        return full_url.replace("github.com/", "")
+        ret_val = full_url.replace("github.com/", "")
     elif url.startswith("https://github.com/"):
-        return url.replace("https://github.com/", "")
-    else:
-        return 0
+        ret_val = url.replace("https://github.com/", "")
+    return ret_val
 
 def parse(url_file):
     """URL parser function"""
