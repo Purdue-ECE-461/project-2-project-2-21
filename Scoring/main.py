@@ -12,7 +12,7 @@ def score_firestore_change(data, context):
         data (dict): the event payload
         context (google.cloud.functions.Context): Metadata for the event. 
     """   
-    path_parts = context.resource.split('/documents/packages/')[1].split('/'))
+    path_parts = context.resource.split('/documents/packages/')[1].split('/')
     collection_path = path_parts[0]
     document_path = '/'.join(path_parts[1:])
     
