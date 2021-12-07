@@ -117,8 +117,7 @@ def calc_scores(git, urls, raw_url_list):
             + " "
             + str(update_score)
         )
-    return [net_score, ramp_up_score, correctness_score, bus_factor, \
-        responsiveness_score, license_score, update_score]
+    return [net_score, ramp_up_score, correctness_score, bus_factor, responsiveness_score, license_score, update_score]
            
 
 def parse_single(url):

@@ -27,8 +27,7 @@ def score_firestore_change(data, context):
     print(url_value)
     
     # Score based on url
-    [net_score, ramp_up_score, correctness_score, bus_factor, \
-        responsiveness_score, license_score, update_score] = perform.perform_single(url_value)
+    [net, ru, corr, bf, resp, lic, upd] = perform.perform_single(url_value)
     print("success!!")
     
     # Write scores to new file
