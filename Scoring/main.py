@@ -22,7 +22,7 @@ def score_firestore_change(data, context):
     print('\nNew value:')
     print(json.dumps(data["value"]))
     
-    path_parts = context.resource.split('/documents/'[1].split('/')
+    path_parts = context.resource.split('/documents/'[1].split('/'))
     collection_path = path_parts[0]
     document_path = '/'.join(path_parts[1:]
     
