@@ -20,22 +20,22 @@ def score_firestore_change(data, context):
     affected_doc = client.collection(collection_path).document(document_path)
     
     # Retrieve appropriate fields
-    id_value = data["value"]["fields"]["ID"]["stringValue"]
     url_value = data["value"]["fields"]["URL"]["stringValue"]
-    version_value = data["value"]["fields"]["Version"]["stringValue"]
-    print(id_value)
     print(url_value)
     
     # Score based on url
-    [net, ru, corr, bf, resp, lic, upd] = perform.perform_single(url_value)
+    ru, corr, bf, resp, lic, upd = perform.perform_single(url_value)
     print("success!!")
     
     # Write scores to new file
     new_doc = db.collection(u'scores').document(id_value)
     new_doc.set({
-        u'URL' : url_value,
-        u'ID'  : id_value,
-        u'Version': version_value
+        u'RampUp': ru,
+        u'Correctness': corr,
+        u'BusFactor': bf,
+        u'ResponsiveMaintainer': resp,
+        u'LicenseScore': lic,
+        u'UpdateScore': upd
     })
     
     
