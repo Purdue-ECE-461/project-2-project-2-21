@@ -3,14 +3,14 @@
 import json
 from localpackage import perform
 from google.cloud import firestore
-client = firesstore.Client()
+client = firestore.Client()
 
 
 def score_firestore_change(data, context):
     """Triggered by a change to a Firestore document
     args:
         data (dict): the event payload
-        context (google.cloud.functions.Context): Metadata for the event.
+        context (google.cloud.functions.Context): Metadata for the event. 
     """
     trigger_resource = context.resource
     
@@ -33,6 +33,5 @@ def score_firestore_change(data, context):
     print(content_value)
     print(url_value)
     
-    
-    #perform.perform_single("https://github.com/expressjs/express")
-    #print("success!!")
+    perform.perform_single(url_value)
+    print("success!!")
