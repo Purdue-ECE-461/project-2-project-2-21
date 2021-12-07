@@ -34,11 +34,11 @@
 .button2 {
     background-color: white; 
     color: black;
-    border: 2px solid black;
+    border: 2px solid rgb(145,145,145);
 }
 
 .button2:hover {
-    background-color: black;
+    background-color:rgb(145,145,145);
     color: white;
 }
 
@@ -61,8 +61,8 @@ h1 {
 body {
 	font-family: 'Roboto', sans-serif;
 	font-display: fallback;
-    color:blue;
-	background-color: white;
+    color:black;
+	background-color:rgb(216,216,216);
 	background-size: cover;
 	background-position: center;
 	line-height: 1.6;
@@ -71,4 +71,8 @@ body {
  table, th, td {
      border: 1px solid black;
      border-collapse: collapse;
+     margin: auto;
+     text-align: center;
  }
+
+ 

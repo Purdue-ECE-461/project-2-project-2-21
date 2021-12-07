@@ -18,14 +18,10 @@
 
 <body>
     <header>
-        <img src="{% static 'purdue-logo.svg'%}" alt='purdue-logo'>
+        <img src="{% static 'purdue-logo.svg'%}" alt='purdue-logo' style="padding-top: 40px">
         <h1>Project 2 Site Testing</h1>
     </header>
     <main>
-        <div class="main-page">
-            <h1 class="main-title">Site Functionality</h1>
-            
-        </div>
         <div class ="instructions">
             <p>
                 Please Upload/Download:
@@ -33,7 +29,7 @@
         </div>
         <div class="package-updown">
             <button class='button button1'>
-                <a href="{% url 'upload_package' %}">Upload</a>
+                <a href="{% url 'upload_package' %}">Upload/Download</a>
             </button>
             <button class='button button2'>
                 <a href="{% url 'package_list' %}">Package List</a>
