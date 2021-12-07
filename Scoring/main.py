@@ -11,18 +11,8 @@ def score_firestore_change(data, context):
     args:
         data (dict): the event payload
         context (google.cloud.functions.Context): Metadata for the event. 
-    """
-    trigger_resource = context.resource
-    
-    print('function triggered by change to %s' % trigger_resource)
-    
-    print('\n01d value:')
-    print(json.dumps(data["oldValue"]))
-    
-    print('\nNew value:')
-    print(json.dumps(data["value"]))
-    
-    path_parts = context.resource.split('/documents/'[1].split('/'))
+    """   
+    path_parts = context.resource.split('/documents/packages/')[1].split('/'))
     collection_path = path_parts[0]
     document_path = '/'.join(path_parts[1:])
     
