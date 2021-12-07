@@ -1,5 +1,6 @@
 import Vapor
 import VaporFirestore
+import JWT
 
 // configures your application
 public func configure(_ app: Application) throws {
@@ -10,10 +11,13 @@ public func configure(_ app: Application) throws {
         privateKey: Environment.get("FS_PRIVKEY_KEY")!
     )
     
+    // Add HMAC with SHA-256 signer.
+    app.jwt.signers.use(.hs256(key: "ece-461-project-2-secret-key"))
+    
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
-    app.middleware.use(UserAuthenticator())
+//    app.middleware.use(UserAuthenticator())
     
     // register routes
     try routes(app)

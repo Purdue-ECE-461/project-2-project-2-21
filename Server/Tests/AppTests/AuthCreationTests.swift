@@ -7,9 +7,21 @@
 
 import Foundation
 import XCTest
+import XCTVapor
 @testable import App
 
 final class AuthCreationTests: XCTestCase {
+    
+    private var app: Application!
+    
+    override func setUpWithError() throws {
+        app = Application(.testing)
+        try configure(app)
+    }
+    
+    override func tearDownWithError() throws {
+        app.shutdown()
+    }
     
     func testDecodeAuthCreation() throws {
         guard let fileURL = Bundle.module.url(forResource: "ece461DefaultAdmin", withExtension: "json", subdirectory: "MockData/Authentication") else {
@@ -25,4 +37,23 @@ final class AuthCreationTests: XCTestCase {
         XCTAssertEqual(auth.secret.password, "correcthorsebatterystaple123(!__+@**(A")
     }
     
+    func testCreateUser() throws {
+        try app.test(.POST, "authenticate", beforeRequest: { req in
+            try req.content.encode(AuthenticationRequest.mock)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .created)
+            XCTAssertEqual(res.headers.contentType, .json)
+            print(res.body.string)
+        })
+    }
+    
+    func testPUTUserToken() throws {
+        try app.test(.PUT, "authenticate", beforeRequest: { req in
+            try req.content.encode(AuthenticationRequest.mock)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
+            print(res.body.string)
+        })
+    }
 }
