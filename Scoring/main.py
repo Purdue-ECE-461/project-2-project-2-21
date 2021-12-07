@@ -33,7 +33,7 @@ def score_firestore_change(data, context):
     # Handle errors if it fails to gather scores
     except Exception as exception:
         event_message = f'This error was triggered by messageID {context.event_id} \
-            published at {context.timestamp} to {context.resource["name"]}'
+            published at {context.timestamp}'
         new_doc = client.collection('scores').document(id_value)
         new_doc.set({
             'Exception': exception,
