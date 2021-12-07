@@ -2,22 +2,42 @@
 
 import json
 from localpackage import perform
+from google.cloud import firestore
+client = firestore.Client()
+
 
 def score_firestore_change(data, context):
     """Triggered by a change to a Firestore document
     args:
         data (dict): the event payload
-        context (google.cloud.functions.Context): Metadata for the event.
-    """
-    trigger_resource = context.resource
+        context (google.cloud.functions.Context): Metadata for the event. 
+    """   
+    # Retrieve changed/new document
+    path_parts = context.resource.split('/documents/packages/')[1].split('/')
+    collection_path = path_parts[0]
+    document_path = '/'.join(path_parts[1:])
     
-    print('function triggered by change to %s' % trigger_resource)
+    affected_doc = client.collection(collection_path).document(document_path)
     
-    print('\n01d value:')
-    print(json.dumps(data["oldValue"]))
+    # Retrieve appropriate fields
+    url_value = data["value"]["fields"]["URL"]["stringValue"]
+    print(url_value)
     
-    print('\nNew value:')
-    print(json.dumps(data["value"]))
-    
-    perform.perform_single("https://github.com/expressjs/express")
+    # Score based on url
+    ru, corr, bf, resp, lic, upd = perform.perform_single(url_value)
     print("success!!")
+    
+    # Write scores to new file
+    new_doc = db.collection(u'scores').document(id_value)
+    new_doc.set({
+        u'RampUp': ru,
+        u'Correctness': corr,
+        u'BusFactor': bf,
+        u'ResponsiveMaintainer': resp,
+        u'LicenseScore': lic,
+        u'UpdateScore': upd
+    })
+    
+    
+
+    

@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: deploy-cloud-functions
+name: deploy-create-cf
 
 # Controls when the workflow will run
 on:
@@ -30,16 +30,17 @@ jobs:
         with:
           credentials_json: ${{ secrets.gcp_credentials }}
       # Deploys code to cloud functions
-      - id: deploy
+      - id: deploy-create-cf
         uses: google-github-actions/deploy-cloud-functions@v0.6.0
         with:
-          name: scoring-func
+          name: score-on-creation
           runtime: python39
           entry_point: score_firestore_change
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
           project_id: updated-461-project-2
           description: "Scores modules upon document creation"
           source_dir: Scoring
+          timeout: 500
           event_trigger_type: providers/cloud.firestore/eventTypes/document.create
           event_trigger_resource: projects/updated-461-project-2/databases/(default)/documents/packages/{packageID}
           
