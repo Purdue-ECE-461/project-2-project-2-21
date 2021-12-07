@@ -24,9 +24,9 @@ def score_firestore_change(data, context):
     
     path_parts = context.resource.split('/documents/'[1].split('/'))
     collection_path = path_parts[0]
-    document_path = '/'.join(path_parts[1:]
+    document_path = '/'.join(path_parts[1:])
     
-    affected_doc = client.collection(collection_path).document(document_path))
+    affected_doc = client.collection(collection_path).document(document_path)
     
     content_value = data["value"]["fields"]["content"]
     url_value = data["value"]["fields"]["url"]
