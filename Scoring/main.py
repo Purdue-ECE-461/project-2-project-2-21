@@ -20,7 +20,8 @@ def score_firestore_change(data, context):
     affected_doc = client.collection(collection_path).document(document_path)
     
     # Retrieve appropriate fields
-    url_value = data["value"]["fields"]["URL"]["stringValue"]
+    id_value = data["value"]["fields"]["id"]["stringValue"]
+    url_value = data["value"]["fields"]["url"]["stringValue"]
     print(url_value)
     
     # Score based on url
