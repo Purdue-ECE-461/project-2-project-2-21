@@ -111,9 +111,19 @@ struct PackageController: RouteCollection {
         return Response(status: .badRequest, headers: headers)
     }
     
-    func rate(request: Request) throws -> PackageScore {
-        // TODO: Implement
-        return PackageScore.mock
+    func rate(request: Request) async throws -> PackageScore {
+        guard let name = request.parameters.get("name") else {
+            throw Abort(.badRequest)
+        }
+        
+        let path = "scores/\(name)"
+        
+        guard let document: Firestore.Document<PackageScore> = try? await client.getDocument(path: path, query: nil).get(),
+              let score = document.fields else {
+                  throw Abort(.internalServerError)
+              }
+        
+        return score
     }
     
     func getPackageByName(request: Request) throws -> [PackageHistoryItem] {
