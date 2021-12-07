@@ -28,7 +28,7 @@ def score_firestore_change(data, context):
     print("success!!")
     
     # Write scores to new file
-    new_doc = db.collection(u'scores').document(id_value)
+    new_doc = client.collection(u'scores').document(id_value)
     new_doc.set({
         u'RampUp': ru,
         u'Correctness': corr,
