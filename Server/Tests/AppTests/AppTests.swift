@@ -36,9 +36,9 @@ final class AppTests: XCTestCase {
             XCTAssertEqual(package.metadata.version, metadata.version)
             XCTAssertEqual(package.metadata.name, metadata.name)
             
-            try app.test(.DELETE, "temporary", beforeRequest: { req in
-                req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
-            })
+//            try app.test(.DELETE, "temporary", beforeRequest: { req in
+//                req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+//            })
         })
     }
     
@@ -112,7 +112,7 @@ final class AppTests: XCTestCase {
     }
     
     func testGETRate() throws {
-        try app.test(.GET, "package/underscore/rate", beforeRequest: { req in
+        try app.test(.GET, "package/temporary/rate", beforeRequest: { req in
             req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)

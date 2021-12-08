@@ -24,7 +24,7 @@ struct ResetController: RouteCollection {
     }
     
     func reset(req: Request) async throws -> Response {
-        // TODO: Check if authorized user
+        // TODO: Check if authorized user (isAdmin)
         
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "text/plain")

@@ -7,14 +7,26 @@
 
 import Foundation
 import Vapor
+import VaporFirestore
 
 struct PackageScore: Content {
-    let rampUp: Double
-    let correctness: Double
-    let busFactor: Double
-    let responsiveMaintainer: Double
-    let licenseScore: Double // TODO: Should this be an integer?
-    let goodPinningPractice: Double
+    @Firestore.DoubleValue
+    private(set) var rampUp: Double
+    
+    @Firestore.DoubleValue
+    private(set) var correctness: Double
+    
+    @Firestore.DoubleValue
+    private(set) var busFactor: Double
+    
+    @Firestore.DoubleValue
+    private(set) var responsiveMaintainer: Double
+    
+    @Firestore.DoubleValue
+    private(set) var licenseScore: Double // TODO: Should this be an integer?
+    
+    @Firestore.DoubleValue // TODO: In database as "UpdateScore"
+    private(set) var goodPinningPractice: Double
     
     init(rampUp: Double,
          correctness: Double,

@@ -110,18 +110,26 @@ struct PackageController: RouteCollection {
     }
     
     func rate(request: Request) async throws -> PackageScore {
-        guard let name = request.parameters.get("name") else {
+        guard let name = request.parameters.get("id") else {
             throw Abort(.badRequest)
         }
         
         let path = "scores/\(name)"
         
-        guard let document: Firestore.Document<PackageScore> = try? await client.getDocument(path: path, query: nil).get(),
-              let score = document.fields else {
-                  throw Abort(.internalServerError)
-              }
-        
-        return score
+        do {
+            let document: Firestore.Document<PackageScore> = try await client.getDocument(path: path, query: nil).get()
+            
+            guard let score = document.fields else {
+                assertionFailure("Found nil score")
+                throw Abort(.internalServerError)
+            }
+            
+            return score
+        } catch {
+            print(error)
+            assertionFailure(error.localizedDescription)
+            throw Abort(.internalServerError)
+        }
     }
     
     func getPackageByName(request: Request) async throws -> [PackageHistoryItem] {
