@@ -13,10 +13,43 @@ struct ProjectPackageRequest: Content, Codable {
     let version: String
     let name: String
     
+    let minimumVersion: String
+    let maximumVersion: String?
+    let includesUpperBound: Bool
+    
     enum CodingKeys: String, CodingKey {
         case version = "Version"
         case name = "Name"
     }
+    
+    init(version: String, name: String) {
+        self.version = version
+        self.name = name
+    
+        let versions = version.getMinMaxVersions()
+        self.minimumVersion = versions.0
+        self.maximumVersion = versions.1
+        self.includesUpperBound = versions.2
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.version = try container.decode(String.self, forKey: .version)
+        self.name = try container.decode(String.self, forKey: .name)
+    
+        let versions = version.getMinMaxVersions()
+        self.minimumVersion = versions.0
+        self.maximumVersion = versions.1
+        self.includesUpperBound = versions.2
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(version, forKey: .version)
+        try container.encode(name, forKey: .name)
+    }
+    
+    
 }
 
 // TODO: Remove this
@@ -37,7 +70,6 @@ extension ProjectPackageRequest {
     ]
 }
 
-
 struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
     var id: String
@@ -48,9 +80,11 @@ struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
     var version: String
     
+    // TODO: Update this to be an optional
     @Firestore.StringValue
     var content: String
     
+    // TODO: Update this to be an optional
     @Firestore.StringValue
     var url: String
     

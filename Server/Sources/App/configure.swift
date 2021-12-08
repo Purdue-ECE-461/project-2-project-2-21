@@ -14,10 +14,8 @@ public func configure(_ app: Application) throws {
     // Add HMAC with SHA-256 signer.
     app.jwt.signers.use(.hs256(key: "ece-461-project-2-secret-key"))
     
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
     app.middleware.use(UserAuthenticator(app: app), at: .beginning)
+    app.middleware.use(LoggingMiddleware(app: app))
     
     // register routes
     try routes(app)

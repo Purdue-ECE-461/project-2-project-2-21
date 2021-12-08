@@ -22,7 +22,7 @@ final class PackageHistoryItemTests: XCTestCase {
         
         XCTAssertEqual(item.user.name, "Paschal Amusuo")
         XCTAssertTrue(item.user.isAdmin)
-        XCTAssertEqual(item.date.ISO8601Format(), "2021-11-21T01:11:11Z")
+        XCTAssertEqual(item.date, "2021-11-21T01:11:11Z")
         XCTAssertEqual(item.packageMetadata.name, "Underscore")
         XCTAssertEqual(item.packageMetadata.version, "1.0.0")
         XCTAssertEqual(item.packageMetadata.id, "underscore")

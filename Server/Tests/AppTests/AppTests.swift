@@ -36,9 +36,9 @@ final class AppTests: XCTestCase {
             XCTAssertEqual(package.metadata.version, metadata.version)
             XCTAssertEqual(package.metadata.name, metadata.name)
             
-            try app.test(.DELETE, "temporary", beforeRequest: { req in
-                req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
-            })
+//            try app.test(.DELETE, "temporary", beforeRequest: { req in
+//                req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+//            })
         })
     }
     
@@ -112,7 +112,7 @@ final class AppTests: XCTestCase {
     }
     
     func testGETRate() throws {
-        try app.test(.GET, "package/underscore/rate", beforeRequest: { req in
+        try app.test(.GET, "package/temporary/rate", beforeRequest: { req in
             req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
@@ -171,7 +171,7 @@ final class AppTests: XCTestCase {
     }
     
     func testDELETEPackageVersionsByName() throws {
-        try app.test(.DELETE, "package/byName/Underscore", beforeRequest: { req in
+        try app.test(.DELETE, "package/byName/express", beforeRequest: { req in
             req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
@@ -192,5 +192,41 @@ final class AppTests: XCTestCase {
     
     func testUnauthorizedAccess() throws {
         try app.test(.GET, "")
+    }
+    
+    func testGETExpressPackage() throws {
+        try app.test(.GET, "package/express", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
+            let payload = try res.content.decode(ProjectPackage.self)
+            print(payload.data.content.count)
+        })
+    }
+    
+    // This is a flaky test because it requires manual entry into the database
+    func testGETSpecificPackages() throws {
+        try app.test(.POST, "packages", beforeRequest: { req in
+            let requestedPackages: [ProjectPackageRequest] = [ProjectPackageRequest(version: "1.0.0-4.0.0", name: "Underscore")]
+            try req.content.encode(requestedPackages)
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            let decodedValues = try res.content.decode([ProjectPackage.Metadata].self)
+            print(decodedValues)
+        })
+    }
+    
+    func testGETPackageHistory() throws {
+        try app.test(.GET, "package/byName/Temporary", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
+            let historyItems = try res.content.decode([PackageHistoryItem].self)
+            XCTAssertEqual(historyItems.count, 2) // Flaky. Comment out unless certain.
+            dump(historyItems)
+        })
     }
 }

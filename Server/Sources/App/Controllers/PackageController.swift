@@ -16,7 +16,7 @@ struct PackageController: RouteCollection {
     init(app: Application) {
         self.client = app.firestoreService.firestore
     }
-        
+    
     func boot(routes: RoutesBuilder) throws {
         let package = routes.grouped("package")
         package.post(use: create) // Create or ingest a package
@@ -32,8 +32,6 @@ struct PackageController: RouteCollection {
     }
     
     func create(req: Request) async throws -> Response {
-        // TODO: Implement create
-        // TODO: Implement ingest
         let package = try req.content.decode(ProjectPackage.self)
         let firestorePackage = package.asFirestoreProjectPackage()
         
@@ -112,36 +110,127 @@ struct PackageController: RouteCollection {
     }
     
     func rate(request: Request) async throws -> PackageScore {
-        guard let name = request.parameters.get("name") else {
+        guard let name = request.parameters.get("id") else {
             throw Abort(.badRequest)
         }
         
         let path = "scores/\(name)"
         
-        guard let document: Firestore.Document<PackageScore> = try? await client.getDocument(path: path, query: nil).get(),
-              let score = document.fields else {
-                  throw Abort(.internalServerError)
-              }
-        
-        return score
-    }
-    
-    func getPackageByName(request: Request) throws -> [PackageHistoryItem] {
-        // TODO: Implement get package history by name
-        
-        guard let _ = request.parameters.get("name") else {
-            throw Abort(.badRequest)
+        do {
+            let document: Firestore.Document<PackageScore> = try await client.getDocument(path: path, query: nil).get()
+            
+            guard let score = document.fields else {
+                assertionFailure("Found nil score")
+                throw Abort(.internalServerError)
+            }
+            
+            return score
+        } catch {
+            print(error)
+            assertionFailure(error.localizedDescription)
+            throw Abort(.internalServerError)
         }
-        
-        // TODO: Remove mock
-        return PackageHistoryItem.items
     }
     
-    func deletePackageByName(request: Request) throws -> Response {
-        // TODO: Implement
+    func getPackageByName(request: Request) async -> Response {
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "text/plain")
-        return Response(status: .ok, headers: headers)
+        
+        guard let name = request.parameters.get("name") else {
+            assertionFailure("Did not find package name in URL.")
+            return Response(status: .badRequest, headers: headers)
+        }
+        
+        var matchingHistoryItems: [PackageHistoryItem] = []
+        var nextPageToken: String? = nil
+        
+        do {
+            // Get the documents to delete
+            repeat {
+                let query = constructQuery(nextPageToken: nextPageToken)
+
+                let packagesList: Firestore.List.Response<FirestorePackageHistoryItem> = try await client.listDocumentsPaginated(path: "requests", query: query).get()
+                
+                nextPageToken = packagesList.nextPageToken
+                
+                // Filter to matching names and convert to response struct format
+                let matchingPackages = packagesList
+                    .documents
+                    .filter { $0.fields?.name == name }
+                    .compactMap { $0.fields?.asPackageHistoryItem() }
+                
+                matchingHistoryItems.append(contentsOf: matchingPackages)
+            } while (nextPageToken != nil)
+            
+            // If empty list, then the package doesn't exist
+            // TODO: Confirm that an empty list will occur for non-existent
+            guard !matchingHistoryItems.isEmpty else {
+                assertionFailure("Did not find any matching history items")
+                return Response(status: .badRequest, headers: headers)
+            }
+            
+            // Sort by descending date
+            matchingHistoryItems.sort { $0.date > $1.date }
+            
+            let data = try JSONEncoder().encode(matchingHistoryItems)
+            
+            var jsonHeaders = HTTPHeaders()
+            jsonHeaders.add(name: .contentType, value: "application/json")
+            
+            return Response(status: .ok, headers: jsonHeaders, body: .init(data: data))
+        } catch {
+            print(error)
+            assertionFailure(error.localizedDescription)
+            return Response(status: .internalServerError, headers: headers, body: InternalError.unexpectedError.asResponseBody())
+        }
     }
     
+    func deletePackageByName(request: Request) async -> Response {
+        guard let name = request.parameters.get("name") else { return Response(status: .badRequest) }
+        
+        var docIDsToDelete: [String] = []
+        var nextPageToken: String? = nil
+        
+        var headers = HTTPHeaders()
+        headers.add(name: .contentType, value: "text/plain")
+        
+        do {
+            // Get the documents to delete
+            repeat {
+                let query = constructQuery(nextPageToken: nextPageToken)
+
+                let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(path: "packages", query: query).get()
+                
+                nextPageToken = packagesList.nextPageToken
+                
+                // Add documents to delete
+                let packages = packagesList.documents.compactMap { $0.fields?.asProjectPackage() }
+                
+                // Filter by specified name
+                // Transform to list of IDs
+                let ids = packages.filter { $0.metadata.name == name }.map(\.metadata.id)
+                
+                docIDsToDelete.append(contentsOf: ids)
+            } while (nextPageToken != nil)
+            
+            // Delete the documents
+            for documentID in docIDsToDelete {
+                let _ : [String: String] = try await client.deleteDocument(path: "packages/\(documentID)").get()
+            }
+            
+            return Response(status: .ok, headers: headers)
+        } catch {
+            print(error)
+        }
+        
+        return Response(status: .internalServerError, headers: headers)
+    }
+    
+}
+
+extension PackageController {
+    private func constructQuery(nextPageToken: String?) -> String {
+        guard let nextPageToken = nextPageToken else { return "" }
+        return "pageToken=\(nextPageToken)"
+    }
 }

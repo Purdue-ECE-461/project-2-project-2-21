@@ -23,68 +23,103 @@ struct PackagesController: RouteCollection {
         }
     }
     
-    private func constructQuery(offset: Int, nextPageToken: String?) -> String? {
-        #warning("Change to 10")
-        let query = "pageSize=10" // Per documentation, page size is default 10
+    func index(request: Request) async throws -> [ProjectPackage.Metadata] {
         
-        // Check if first page
-        // On first page, don't add next page token
-        if offset == 1 {
-            return query
-        }
-        
-        // If not first page, check that next page token exists.
-        // If next page token exists, append and return.
-        // Otherwise, return nil to indicate error.
-        guard let nextPageToken = nextPageToken else {
-            return nil
-        }
-        
-        return query.appending("&pageToken=\(nextPageToken)")
-    }
-    
-    func index(request: Request) async -> Response {
-        // TODO: Add offset
-        var headers = HTTPHeaders()
-        headers.add(name: .contentType, value: "application/json")
-        
-        let offset = request.query["offset"] ?? 1
-        var nextPageToken: String? = nil
-            
         do {
-            let requestedPackages = try request.content.decode([ProjectPackageRequest].self)
+            let versionRequests = try request.content.decode([ProjectPackageRequest].self)
+            let requestedPackageNames = versionRequests.map(\.name)
             
-            for currentOffset in 1...offset {
-                if currentOffset != 1, nextPageToken == nil { return Response.internalError }
-                let query = constructQuery(offset: offset, nextPageToken: nextPageToken)
+            let offset = request.query["offset"] ?? 1
+            guard offset > 0 else { throw Abort(.badRequest) } // Offset needs to be a positive value
+            
+            var nextPageToken: String? = nil
+            var matchingMetadata: [ProjectPackage.Metadata] = []
+            
+            
+            // Get the documents that match
+            repeat {
+                let query = constructQuery(nextPageToken: nextPageToken)
                 
-                typealias PaginatedList = Firestore.List.Response<FirestoreProjectPackage>
+                // TODO: Add mask to only use metadata
+                let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(path: "packages", query: query).get()
                 
-                // Iterate through to get next page token
-                let packagesList: PaginatedList = try await client.listDocumentsPaginated(path: "packages", query: query).get()
+                nextPageToken = packagesList.nextPageToken
                 
-                if currentOffset != offset {
-                    // Get the next page token
-                    guard let token = packagesList.nextPageToken else { return Response.internalError }
-                    nextPageToken = token
-                } else {
-                    // Got last page
-                    let packages = packagesList.documents.compactMap { $0.fields?.asProjectPackage() }
-                    let documentsMetadata = packages.map(\.metadata)
-                    let metadataListData = try JSONEncoder().encode(documentsMetadata)
-                    return Response(status: .ok, headers: headers, body: .init(data: metadataListData))
-                }
+                // Add documents to delete
+                let packages = packagesList.documents.compactMap { $0.fields?.asProjectPackage() }
+                
+                // Transform to metadata only
+                // Filter by specified name
+                let currentMatchingValues = packages
+                    .map(\.metadata)
+                    .filter { isMatchingPackageVersion(names: requestedPackageNames, requests: versionRequests, metadata: $0) }
+                
+                matchingMetadata.append(contentsOf: currentMatchingValues)
+            } while (nextPageToken != nil)
+            
+            
+            // Only take the given offset
+            
+            if matchingMetadata.isEmpty { return [] }
+            
+            let beginningIndex = (offset * 10) - 10 // Page Size is 10
+            let numElements = matchingMetadata.count
+            let lastPossibleIndex = numElements - 1
+            
+            if beginningIndex > lastPossibleIndex {
+                // The window is too far right
+                // 0 1 2 3
+                //         [ ]
+                // This page doesn't exist
+                throw Abort(.notFound)
+            } else {
+                // The window contains up to a full set of values
+                // 0 1 2 3 4 5 6 7 8
+                //      [
+                // Return the values
+                return Array(matchingMetadata.dropFirst(beginningIndex).prefix(10)) // Page size is 10
             }
         } catch {
-            return Response.internalError
+            print(error)
         }
         
-        return Response.internalError
+        throw Abort(.internalServerError)
     }
-
 }
 
-private extension Response {
+extension PackagesController {
+    private func isMatchingPackageVersion(
+        names: [String],
+        requests: [ProjectPackageRequest],
+        metadata: ProjectPackage.Metadata
+    ) -> Bool {
+        // Check that the current package was even requested
+        guard names.contains(metadata.name) else { return false }
+        
+        // Filter the request to the given package
+        let filteredRequests = requests.filter { $0.name == metadata.name }
+        
+        // There should be one requested version
+        assert(filteredRequests.count == 1, "There was not exactly one matching request.")
+        guard let requestCheck = filteredRequests.first else { return false }
+        
+        // Check if the package's range matches the request
+        // Min check should be ordered same or ordered ascending
+        // Max check should be ordered descending. In the event of no max value, orderedDescending is set since in range.
+        let minCheck = requestCheck.minimumVersion.versionCompare(metadata.version)
+        let maxCheck: ComparisonResult = requestCheck.maximumVersion?.versionCompare(metadata.version) ?? .orderedDescending
+        
+        // MinAllowedVersion <= GivenVersion < MaxAllowedVersion
+        return (minCheck == .orderedSame || minCheck == .orderedAscending) && (requestCheck.includesUpperBound ? (maxCheck == .orderedSame || maxCheck == .orderedDescending) : maxCheck == .orderedDescending)
+    }
+    
+    private func constructQuery(nextPageToken: String?) -> String {
+        guard let nextPageToken = nextPageToken else { return "" }
+        return "pageToken=\(nextPageToken)"
+    }
+}
+
+extension Response {
     static let internalError: Response = {
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "application/json")
@@ -95,4 +130,11 @@ private extension Response {
             body: InternalError.unexpectedError.asResponseBody()
         )
     }()
+}
+
+// CREDIT: https://sarunw.com/posts/how-to-compare-two-app-version-strings-in-swift/
+extension String {
+    func versionCompare(_ otherVersion: String) -> ComparisonResult {
+        return self.compare(otherVersion, options: .numeric)
+    }
 }
