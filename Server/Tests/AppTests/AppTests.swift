@@ -26,6 +26,7 @@ final class AppTests: XCTestCase {
 
         try app.test(.POST, "package", beforeRequest: { req in
             try req.content.encode(package)
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .created)
             XCTAssertEqual(res.headers.contentType, .json)
@@ -35,19 +36,25 @@ final class AppTests: XCTestCase {
             XCTAssertEqual(package.metadata.version, metadata.version)
             XCTAssertEqual(package.metadata.name, metadata.name)
             
-            try app.test(.DELETE, "temporary")
+            try app.test(.DELETE, "temporary", beforeRequest: { req in
+                req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+            })
         })
     }
     
     func testGETExistentPackagePackageResponseByID() throws {
-        try app.test(.GET, "package/underscore", afterResponse: { res in
+        try app.test(.GET, "package/underscore", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
         })
     }
     
     func testGETNonExistentPackagePackageResponseByID() throws {
-        try app.test(.GET, "package/does_not_exist", afterResponse: { res in
+        try app.test(.GET, "package/does_not_exist", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
             XCTAssertEqual(res.status, .internalServerError)
             XCTAssertEqual(res.headers.contentType, .json)
             let errorResponse = try res.content.decode(InternalError.self)
@@ -60,6 +67,7 @@ final class AppTests: XCTestCase {
         try app.test(.PUT, "package/underscore", beforeRequest: { req in
             let package = ProjectPackage.mock
             try req.content.encode(package)
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .plainText)
@@ -79,13 +87,15 @@ final class AppTests: XCTestCase {
     func testDELETETemporaryPackageResponseByID() throws {
         // TODO: Create a deletable object
         
-        try app.test(.POST, "package") { req in
+        try app.test(.POST, "package", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
             try req.content.encode(ProjectPackage.temporary)
-        }
+        })
 
         try app.test(.DELETE, "package/temporary", beforeRequest: { req in
             let package = ProjectPackage.mock
             try req.content.encode(package)
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .plainText)
@@ -93,14 +103,18 @@ final class AppTests: XCTestCase {
     }
     
     func testAttemptDELETENonExistentPackageResponseByID() throws {
-        try app.test(.DELETE, "package/does_not_exist", afterResponse: { res in
+        try app.test(.DELETE, "package/does_not_exist", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
             XCTAssertEqual(res.status, .badRequest)
             XCTAssertEqual(res.headers.contentType, .plainText)
         })
     }
     
     func testGETRate() throws {
-        try app.test(.GET, "package/underscore/rate", afterResponse: { res in
+        try app.test(.GET, "package/underscore/rate", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
 
@@ -126,28 +140,30 @@ final class AppTests: XCTestCase {
         })
     }
     
-    func testAuthenticatedReset() throws {
-        try app.test(.DELETE, "reset", afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.headers.contentType, .plainText)
-        })
-    }
+    // TODO: This will remove all packages
+//    func testAuthenticatedReset() throws {
+//        try app.test(.DELETE, "reset", afterResponse: { res in
+//            XCTAssertEqual(res.status, .ok)
+//            XCTAssertEqual(res.headers.contentType, .plainText)
+//        })
+//    }
     
     func testCreateAuthToken() throws {
         try app.test(.PUT, "authenticate", beforeRequest: { req in
             let authRequest = AuthenticationRequest.mock
             try req.content.encode(authRequest)
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
-            
-            let bearerToken = res.body.string
-            XCTAssertEqual(bearerToken, "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
+            XCTAssertFalse(res.body.string.isEmpty)
         })
     }
     
     func testGETPackageHistoryByName() throws {
-        try app.test(.GET, "package/byName/Underscore", afterResponse: { res in
+        try app.test(.GET, "package/byName/Underscore", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
             _ = try res.content.decode([PackageHistoryItem].self)
@@ -155,10 +171,26 @@ final class AppTests: XCTestCase {
     }
     
     func testDELETEPackageVersionsByName() throws {
-        try app.test(.DELETE, "package/byName/Underscore", afterResponse: { res in
+        try app.test(.DELETE, "package/byName/Underscore", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .plainText)
             XCTAssertEqual(res.body.string, "") // Ensure empty response
         })
+    }
+    
+    func testPOSTGetPackages() throws {
+        try app.test(.POST, "packages", beforeRequest: { req in
+            let packagesRequest = ProjectPackageRequest.mockList
+            try req.content.encode(packagesRequest)
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+        })
+    }
+    
+    func testUnauthorizedAccess() throws {
+        try app.test(.GET, "")
     }
 }
