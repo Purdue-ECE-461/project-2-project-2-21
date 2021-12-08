@@ -11,7 +11,7 @@ def ingest_package(data, context):
     """
     # Retrieve appropriate fields
     client = firestore.Client()
-    if "content" not in data["value"]["fields"].keys() or data["value"]["fields"]["content"]["stringValue"] == "":
+    if "content" not in data["value"]["fields"].keys() or len(data["value"]["fields"]["content"]["stringValue"]) == 0:
         url_value = data["value"]["fields"]["url"]["stringValue"]
         version_value = data["value"]["fields"]["version"]["stringValue"]
         # Find affected document
