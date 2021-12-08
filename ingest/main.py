@@ -26,5 +26,5 @@ def ingest_package(data, context):
 
         # Write ingested zip to affected document
         affected_doc.set({
-            'content': zipf
+            'content': unicode(zipf)
         }, merge=True)
