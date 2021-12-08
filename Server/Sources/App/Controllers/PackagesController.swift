@@ -100,7 +100,7 @@ extension PackagesController {
         let filteredRequests = requests.filter { $0.name == metadata.name }
         
         // There should be one requested version
-        assert(requests.count == 1, "There was not exactly one matching request.")
+        assert(filteredRequests.count == 1, "There was not exactly one matching request.")
         guard let requestCheck = filteredRequests.first else { return false }
         
         // Check if the package's range matches the request
@@ -110,7 +110,7 @@ extension PackagesController {
         let maxCheck: ComparisonResult = requestCheck.maximumVersion?.versionCompare(metadata.version) ?? .orderedDescending
         
         // MinAllowedVersion <= GivenVersion < MaxAllowedVersion
-        return (minCheck == .orderedSame || minCheck == .orderedAscending) && (maxCheck == .orderedDescending)
+        return (minCheck == .orderedSame || minCheck == .orderedAscending) && (requestCheck.includesUpperBound ? (maxCheck == .orderedSame || maxCheck == .orderedDescending) : maxCheck == .orderedDescending)
     }
     
     private func constructQuery(nextPageToken: String?) -> String {

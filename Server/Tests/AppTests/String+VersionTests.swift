@@ -40,7 +40,7 @@ final class StringVersionTests: XCTestCase {
         let versionRange = versionRequest.getMinMaxVersions()
         XCTAssertEqual(versionRange.minVer, "0.0.1")
         XCTAssertEqual(versionRange.maxVer, "0.0.1")
-        XCTAssertFalse(versionRange.upperIncluded)
+        XCTAssertTrue(versionRange.upperIncluded)
     }
     
     func testAny() {
@@ -64,7 +64,7 @@ final class StringVersionTests: XCTestCase {
         let versionRange = versionRequest.getMinMaxVersions()
         XCTAssertEqual(versionRange.minVer, "1.2.3")
         XCTAssertEqual(versionRange.maxVer, "1.2.3")
-        XCTAssertFalse(versionRange.upperIncluded)
+        XCTAssertTrue(versionRange.upperIncluded)
     }
     
     func testLargeExact() {
@@ -72,6 +72,6 @@ final class StringVersionTests: XCTestCase {
         let versionRange = versionRequest.getMinMaxVersions()
         XCTAssertEqual(versionRange.minVer, "123.456.789")
         XCTAssertEqual(versionRange.maxVer, "123.456.789")
-        XCTAssertFalse(versionRange.upperIncluded)
+        XCTAssertTrue(versionRange.upperIncluded)
     }
 }

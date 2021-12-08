@@ -80,7 +80,7 @@ extension String {
             if givenMajor == "0", givenMinor == "0" {
                 // Example 3
                 // Exact
-                return (givenVersion, givenVersion, false)
+                return (givenVersion, givenVersion, true)
             } else if givenMajor == "0" {
                 // Example 2
                 // Up to next minor
@@ -140,7 +140,7 @@ extension String {
                 return ("0.0.0", nil, true)
             }
             
-            return (self, self, false)
+            return (self, self, true)
         }
     }
 }
