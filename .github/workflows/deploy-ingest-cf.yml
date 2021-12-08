@@ -35,7 +35,7 @@ jobs:
         with:
           name: ingest-package-on-update
           runtime: python39
-          entry_point: score_firestore_change
+          entry_point: ingest_package
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
           project_id: updated-461-project-2
           description: "Ingests package when URL is provided without content."
