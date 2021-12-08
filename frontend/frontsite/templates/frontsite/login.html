@@ -1,7 +1,26 @@
-<h3>Login</h3>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type='submit' name='submit'>
-</form>
+<head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Login</title>
+    
+    <link href="{% static 'styles.css' %}" rel="stylesheet" type="text/css" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.1/URI.min.js"></script>
+    <script type="text/javascript" src="ui.js"></script>
+</head>
+<body>
+    <h3>Login</h3>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type='submit' name='submit'>
+    </form>
+</body>
+</html>

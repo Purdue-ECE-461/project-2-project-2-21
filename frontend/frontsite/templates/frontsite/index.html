@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Project 2 Site Testing</title>
+    <title>ECE 46100: Project 2</title>
     
     <link href="{% static 'styles.css' %}" rel="stylesheet" type="text/css" />
     <link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet" type="text/css">
@@ -19,7 +19,7 @@
 <body>
     <header>
         <img src="{% static 'purdue-logo.svg'%}" alt='purdue-logo' style="padding-top: 40px">
-        <h1>Project 2 Site Testing</h1>
+        <h1>ECE 46100: Project 2</h1>
     </header>
     <main>
         <div class ="instructions">
@@ -28,15 +28,15 @@
             </p>
         </div>
         <div class="package-updown">
-            <button class='button button2'>
+            <div class='button button2' title='Login'>
                 <a href="{% url 'login' %}">Login</a>
-            </button>
-            <button class='button button2'>
+            </div>
+            <div class='button button2' title='Create Account'>
                 <a href="{% url 'register' %}">Create Account</a>
-            </button>
-            <button class='button button2'>
+            </div>
+            <div class='button button2' title='Package List'>
                 <a href="{% url 'api-list' %}">Package List</a>
-            </button>
+            </div>
         </div>
     </main>
     <footer>
