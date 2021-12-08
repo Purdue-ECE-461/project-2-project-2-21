@@ -33,7 +33,7 @@ jobs:
       - id: deploy-ingest-cf
         uses: google-github-actions/deploy-cloud-functions@v0.6.0
         with:
-          name: ingest-package-on-update
+          name: ingest-package-on-create
           runtime: python39
           entry_point: ingest_package
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}

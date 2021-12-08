@@ -10,33 +10,21 @@ def ingest_package(data, context):
         context (google.cloud.functions.Context): Metadata for the event.
     """
     # Retrieve appropriate fields
-    try:
-        client = firestore.Client()
-        if "content" not in data["value"]["fields"].keys():
-            url_value = data["value"]["fields"]["url"]["stringValue"]
-            # Find affected document
-            path_parts = context.resource.split('/documents/')[1].split('/')
-            collection_path = path_parts[0]
-            document_path = '/'.join(path_parts[1:])
-            
-            affected_doc = client.collection(collection_path).document(document_path)
+    client = firestore.Client()
+    if "content" not in data["value"]["fields"].keys():
+        url_value = data["value"]["fields"]["url"]["stringValue"]
+        version_value = data["value"]["fields"]["version"]["stringValue"]
+        # Find affected document
+        path_parts = context.resource.split('/documents/')[1].split('/')
+        collection_path = path_parts[0]
+        document_path = '/'.join(path_parts[1:])
 
-            # Generate base64 zip representation
-            zip = ingest.ingest_package_link(url_value)
+        affected_doc = client.collection(collection_path).document(document_path)
 
-            # Write ingested zip to affected document
-            affected_doc.set({
-                'content': zip
-            }, merge=True)
-            
-    # Handle errors if it fails to gather scores
-    except Exception as exception:
-        event_message = f'This error was triggered by messageID {context.event_id} \
-            published at {context.timestamp}'
-        new_doc = client.collection('scores').document(id_value)
-        new_doc.set({
-            'Exception': exception,
-            'EventType': context.event_type,
-            'EventMessage': event_message
-        })
-    
+        # Generate base64 zip representation
+        zipf = ingest.ingest_package_link(url_value, version_value)
+
+        # Write ingested zip to affected document
+        affected_doc.set({
+            'content': zipf
+        }, merge=True)
