@@ -15,6 +15,7 @@ struct ProjectPackageRequest: Content, Codable {
     
     let minimumVersion: String
     let maximumVersion: String?
+    let includesUpperBound: Bool
     
     enum CodingKeys: String, CodingKey {
         case version = "Version"
@@ -25,9 +26,10 @@ struct ProjectPackageRequest: Content, Codable {
         self.version = version
         self.name = name
     
-        let versions = ProjectPackageRequest.getMinMaxVersions(for: version)
+        let versions = version.getMinMaxVersions()
         self.minimumVersion = versions.0
         self.maximumVersion = versions.1
+        self.includesUpperBound = versions.2
     }
     
     init(from decoder: Decoder) throws {
@@ -35,9 +37,10 @@ struct ProjectPackageRequest: Content, Codable {
         self.version = try container.decode(String.self, forKey: .version)
         self.name = try container.decode(String.self, forKey: .name)
     
-        let versions = ProjectPackageRequest.getMinMaxVersions(for: version)
+        let versions = version.getMinMaxVersions()
         self.minimumVersion = versions.0
         self.maximumVersion = versions.1
+        self.includesUpperBound = versions.2
     }
     
     func encode(to encoder: Encoder) throws {
@@ -46,23 +49,7 @@ struct ProjectPackageRequest: Content, Codable {
         try container.encode(name, forKey: .name)
     }
     
-    private static func getMinMaxVersions(for version: String) -> (String, String?) {
-        // TODO: Add additional checks
-        // TODO: Is "-" inclusive or exclusive?
-        if version.contains("-") {
-            // Range
-            let splitted = version.split(separator: "-")
-            return (String(splitted[0]), String(splitted[1]))
-        } else if version.contains("^") {
-            // Minimum w/o maximum
-            return (String(version.dropFirst()), nil)
-        } else {
-            // Exact
-            // Sanity check that only 3 elements exist (major, minor, patch)
-            assert(version.split(separator: "0").count == 3, "Version produced improper value: \(version)")
-            return (version, version)
-        }
-    }
+    
 }
 
 // TODO: Remove this
