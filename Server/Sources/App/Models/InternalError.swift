@@ -11,7 +11,7 @@ import Vapor
 struct InternalError: Codable {
     let code: Int
     let message: String
-    
+
     func asResponseBody() -> Response.Body {
         if let data = try? JSONEncoder().encode(self) {
             return Response.Body(data: data)
@@ -27,7 +27,7 @@ extension InternalError {
         code: -1,
         message: "An error occurred while retrieving package"
     )
-    
+
     static let unexpectedError = InternalError(
         code: -1,
         message: "An unexpected error occurred"

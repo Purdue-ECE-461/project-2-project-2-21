@@ -12,25 +12,25 @@ import VaporFirestore
 struct FirestorePackageHistoryItem: Codable {
     @Firestore.StringValue
     var username: String
-    
+
     @Firestore.BoolValue
     var isAdmin: Bool
-    
+
     @Firestore.StringValue
     var date: String
-    
+
     @Firestore.StringValue
     var name: String
-    
+
     @Firestore.StringValue
     var id: String
-    
+
     @Firestore.StringValue
     var version: String
-    
+
     @Firestore.StringValue
     var action: String
-    
+
     func asPackageHistoryItem() -> PackageHistoryItem {
         PackageHistoryItem(
             user: AuthenticationRequest.User(
@@ -53,7 +53,7 @@ struct PackageHistoryItem: Content, Codable {
     let date: String
     let packageMetadata: ProjectPackage.Metadata
     let action: PackageHistoryItem.Action
-    
+
     // TODO: Remove this init
     init(user: AuthenticationRequest.User,
          date: String,
@@ -64,14 +64,14 @@ struct PackageHistoryItem: Content, Codable {
         self.packageMetadata = packageMetadata
         self.action = action
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case user = "User"
         case date = "Date"
         case packageMetadata = "PackageMetadata"
         case action = "Action"
     }
-        
+
     init(from decoder: Decoder) throws {
         let containter = try decoder.container(keyedBy: CodingKeys.self)
         self.user = try containter.decode(AuthenticationRequest.User.self, forKey: .user)
@@ -79,7 +79,7 @@ struct PackageHistoryItem: Content, Codable {
         self.action = try containter.decode(PackageHistoryItem.Action.self, forKey: .action)
         self.date = try containter.decode(String.self, forKey: .date)
     }
-    
+
     func asFirestoreHistoryItem() -> FirestorePackageHistoryItem {
         FirestorePackageHistoryItem(
             username: user.name,
@@ -120,7 +120,7 @@ extension PackageHistoryItem {
         ),
         action: .download
     )
-    
+
     static let items: [PackageHistoryItem] = [
         PackageHistoryItem(
             user: AuthenticationRequest.User(

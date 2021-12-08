@@ -12,44 +12,43 @@ import VaporFirestore
 struct ProjectPackageRequest: Content, Codable {
     let version: String
     let name: String
-    
+
     let minimumVersion: String
     let maximumVersion: String?
     let includesUpperBound: Bool
-    
+
     enum CodingKeys: String, CodingKey {
         case version = "Version"
         case name = "Name"
     }
-    
+
     init(version: String, name: String) {
         self.version = version
         self.name = name
-    
+
         let versions = version.getMinMaxVersions()
         self.minimumVersion = versions.0
         self.maximumVersion = versions.1
         self.includesUpperBound = versions.2
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.version = try container.decode(String.self, forKey: .version)
         self.name = try container.decode(String.self, forKey: .name)
-    
+
         let versions = version.getMinMaxVersions()
         self.minimumVersion = versions.0
         self.maximumVersion = versions.1
         self.includesUpperBound = versions.2
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(version, forKey: .version)
         try container.encode(name, forKey: .name)
     }
-    
-    
+
 }
 
 // TODO: Remove this
@@ -73,21 +72,21 @@ extension ProjectPackageRequest {
 struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
     var id: String
-    
+
     @Firestore.StringValue
     var name: String
-    
+
     @Firestore.StringValue
     var version: String
-    
+
     // TODO: Update this to be an optional
     @Firestore.StringValue
     var content: String
-    
+
     // TODO: Update this to be an optional
     @Firestore.StringValue
     var url: String
-    
+
     func asProjectPackage() -> ProjectPackage {
         ProjectPackage(
             metadata: ProjectPackage.Metadata(
@@ -106,7 +105,7 @@ struct FirestoreProjectPackage: Codable {
 struct ProjectPackage: Content, Codable {
     let metadata: Metadata
     let data: PackageData
-    
+
     func asFirestoreProjectPackage() -> FirestoreProjectPackage {
         FirestoreProjectPackage(
             id: metadata.id,
@@ -116,7 +115,7 @@ struct ProjectPackage: Content, Codable {
             url: data.url
         )
     }
-    
+
     func asResponseBody() throws -> Response.Body {
         let data = try JSONEncoder().encode(self)
         return Response.Body(data: data)
@@ -128,23 +127,23 @@ extension ProjectPackage {
         var name: String
         var version: String
         var id: String
-        
+
         func asResponseBody() throws -> Response.Body {
             let data = try JSONEncoder().encode(self)
             return Response.Body(data: data)
         }
-        
+
         enum CodingKeys: String, CodingKey {
             case name = "Name"
             case version = "Version"
             case id = "ID"
         }
     }
-    
+
     struct PackageData: Codable {
         var content: String
         var url: String
-        
+
         enum CodingKeys: String, CodingKey {
             case content = "Content"
             case url = "URL"
@@ -165,7 +164,7 @@ extension ProjectPackage {
             url: "https://github.com/jashkenas/underscore"
         )
     )
-    
+
     static let temporary = ProjectPackage(
         metadata: Metadata(
             name: "Temporary",
@@ -177,7 +176,7 @@ extension ProjectPackage {
             url: "https://github.com/test/temporary"
         )
     )
-    
+
     static let doesNotExist = ProjectPackage(
         metadata: Metadata(
             name: "DoesNotExist",
@@ -190,4 +189,3 @@ extension ProjectPackage {
         )
     )
 }
-

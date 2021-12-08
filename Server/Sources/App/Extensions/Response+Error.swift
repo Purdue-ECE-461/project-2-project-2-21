@@ -12,7 +12,7 @@ extension Response {
     static var noSuchPackageError: Response {
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "application/json")
-        
+
         return Response(
             status: .internalServerError,
             headers: headers,
