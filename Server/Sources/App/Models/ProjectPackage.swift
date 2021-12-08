@@ -37,7 +37,6 @@ extension ProjectPackageRequest {
     ]
 }
 
-
 struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
     var id: String
@@ -48,9 +47,11 @@ struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
     var version: String
     
+    // TODO: Update this to be an optional
     @Firestore.StringValue
     var content: String
     
+    // TODO: Update this to be an optional
     @Firestore.StringValue
     var url: String
     

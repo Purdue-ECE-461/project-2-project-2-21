@@ -171,7 +171,7 @@ final class AppTests: XCTestCase {
     }
     
     func testDELETEPackageVersionsByName() throws {
-        try app.test(.DELETE, "package/byName/Underscore", beforeRequest: { req in
+        try app.test(.DELETE, "package/byName/express", beforeRequest: { req in
             req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)

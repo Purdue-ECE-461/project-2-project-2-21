@@ -171,7 +171,7 @@ struct PackageController: RouteCollection {
             
             // Delete the documents
             for documentID in docIDsToDelete {
-                let _ : String = try await client.deleteDocument(path: "packages/\(documentID)").get()
+                let _ : [String: String] = try await client.deleteDocument(path: "packages/\(documentID)").get()
             }
             
             return Response(status: .ok, headers: headers)
@@ -179,7 +179,7 @@ struct PackageController: RouteCollection {
             print(error)
         }
         
-        return Response(status: .ok, headers: headers)
+        return Response(status: .internalServerError, headers: headers)
     }
     
 }
