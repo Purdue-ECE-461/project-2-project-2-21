@@ -39,11 +39,19 @@ final class AuthCreationTests: XCTestCase {
     
     func testCreateUser() throws {
         try app.test(.POST, "authenticate", beforeRequest: { req in
-            try req.content.encode(AuthenticationRequest.mock)
+            try req.content.encode(AuthenticationRequest.new())
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .created)
             XCTAssertEqual(res.headers.contentType, .json)
             print(res.body.string)
+        })
+    }
+    
+    func testCreateExistingUser() throws {
+        try app.test(.POST, "authenticate", beforeRequest: { req in
+            try req.content.encode(AuthenticationRequest.mock)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .internalServerError)
         })
     }
     
