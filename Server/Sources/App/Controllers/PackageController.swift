@@ -132,9 +132,57 @@ struct PackageController: RouteCollection {
         }
     }
     
-    func getPackageByName(request: Request) async throws -> [PackageHistoryItem] {
-        // TODO: Implement this
-        return []
+    func getPackageByName(request: Request) async -> Response {
+        var headers = HTTPHeaders()
+        headers.add(name: .contentType, value: "text/plain")
+        
+        guard let name = request.parameters.get("name") else {
+            assertionFailure("Did not find package name in URL.")
+            return Response(status: .badRequest, headers: headers)
+        }
+        
+        var matchingHistoryItems: [PackageHistoryItem] = []
+        var nextPageToken: String? = nil
+        
+        do {
+            // Get the documents to delete
+            repeat {
+                let query = constructQuery(nextPageToken: nextPageToken)
+
+                let packagesList: Firestore.List.Response<FirestorePackageHistoryItem> = try await client.listDocumentsPaginated(path: "requests", query: query).get()
+                
+                nextPageToken = packagesList.nextPageToken
+                
+                // Filter to matching names and convert to response struct format
+                let matchingPackages = packagesList
+                    .documents
+                    .filter { $0.fields?.name == name }
+                    .compactMap { $0.fields?.asPackageHistoryItem() }
+                
+                matchingHistoryItems.append(contentsOf: matchingPackages)
+            } while (nextPageToken != nil)
+            
+            // If empty list, then the package doesn't exist
+            // TODO: Confirm that an empty list will occur for non-existent
+            guard !matchingHistoryItems.isEmpty else {
+                assertionFailure("Did not find any matching history items")
+                return Response(status: .badRequest, headers: headers)
+            }
+            
+            // Sort by descending date
+            matchingHistoryItems.sort { $0.date > $1.date }
+            
+            let data = try JSONEncoder().encode(matchingHistoryItems)
+            
+            var jsonHeaders = HTTPHeaders()
+            jsonHeaders.add(name: .contentType, value: "application/json")
+            
+            return Response(status: .ok, headers: jsonHeaders, body: .init(data: data))
+        } catch {
+            print(error)
+            assertionFailure(error.localizedDescription)
+            return Response(status: .internalServerError, headers: headers, body: InternalError.unexpectedError.asResponseBody())
+        }
     }
     
     func deletePackageByName(request: Request) async -> Response {

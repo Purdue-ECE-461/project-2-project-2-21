@@ -217,4 +217,16 @@ final class AppTests: XCTestCase {
             print(decodedValues)
         })
     }
+    
+    func testGETPackageHistory() throws {
+        try app.test(.GET, "package/byName/Temporary", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
+            let historyItems = try res.content.decode([PackageHistoryItem].self)
+            XCTAssertEqual(historyItems.count, 2) // Flaky. Comment out unless certain.
+            dump(historyItems)
+        })
+    }
 }
