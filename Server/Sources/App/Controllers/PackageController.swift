@@ -124,24 +124,12 @@ struct PackageController: RouteCollection {
         return score
     }
     
-    func getPackageByName(request: Request) throws -> [PackageHistoryItem] {
-        // TODO: Implement get package history by name
-        
-        guard let _ = request.parameters.get("name") else {
-            throw Abort(.badRequest)
-        }
-        
-        // TODO: Remove mock
-        return PackageHistoryItem.items
-    }
-    
-    private func constructQuery(nextPageToken: String?) -> String {
-        guard let nextPageToken = nextPageToken else { return "" }
-        return "pageToken=\(nextPageToken)"
+    func getPackageByName(request: Request) async throws -> [PackageHistoryItem] {
+        // TODO: Implement this
+        return []
     }
     
     func deletePackageByName(request: Request) async -> Response {
-        // TODO: Implement
         guard let name = request.parameters.get("name") else { return Response(status: .badRequest) }
         
         var docIDsToDelete: [String] = []
@@ -182,4 +170,11 @@ struct PackageController: RouteCollection {
         return Response(status: .internalServerError, headers: headers)
     }
     
+}
+
+extension PackageController {
+    private func constructQuery(nextPageToken: String?) -> String {
+        guard let nextPageToken = nextPageToken else { return "" }
+        return "pageToken=\(nextPageToken)"
+    }
 }
