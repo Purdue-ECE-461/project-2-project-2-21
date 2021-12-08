@@ -16,7 +16,7 @@ struct PackageController: RouteCollection {
     init(app: Application) {
         self.client = app.firestoreService.firestore
     }
-        
+    
     func boot(routes: RoutesBuilder) throws {
         let package = routes.grouped("package")
         package.post(use: create) // Create or ingest a package
@@ -32,8 +32,6 @@ struct PackageController: RouteCollection {
     }
     
     func create(req: Request) async throws -> Response {
-        // TODO: Implement create
-        // TODO: Implement ingest
         let package = try req.content.decode(ProjectPackage.self)
         let firestorePackage = package.asFirestoreProjectPackage()
         
@@ -137,10 +135,50 @@ struct PackageController: RouteCollection {
         return PackageHistoryItem.items
     }
     
-    func deletePackageByName(request: Request) throws -> Response {
+    private func constructQuery(nextPageToken: String?) -> String {
+        guard let nextPageToken = nextPageToken else { return "" }
+        return "pageToken=\(nextPageToken)"
+    }
+    
+    func deletePackageByName(request: Request) async -> Response {
         // TODO: Implement
+        guard let name = request.parameters.get("name") else { return Response(status: .badRequest) }
+        
+        var docIDsToDelete: [String] = []
+        var nextPageToken: String? = nil
+        
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "text/plain")
+        
+        do {
+            // Get the documents to delete
+            repeat {
+                let query = constructQuery(nextPageToken: nextPageToken)
+
+                let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(path: "packages", query: query).get()
+                
+                nextPageToken = packagesList.nextPageToken
+                
+                // Add documents to delete
+                let packages = packagesList.documents.compactMap { $0.fields?.asProjectPackage() }
+                
+                // Filter by specified name
+                // Transform to list of IDs
+                let ids = packages.filter { $0.metadata.name == name }.map(\.metadata.id)
+                
+                docIDsToDelete.append(contentsOf: ids)
+            } while (nextPageToken != nil)
+            
+            // Delete the documents
+            for documentID in docIDsToDelete {
+                let _ : String = try await client.deleteDocument(path: "packages/\(documentID)").get()
+            }
+            
+            return Response(status: .ok, headers: headers)
+        } catch {
+            print(error)
+        }
+        
         return Response(status: .ok, headers: headers)
     }
     

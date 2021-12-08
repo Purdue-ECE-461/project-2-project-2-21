@@ -193,4 +193,15 @@ final class AppTests: XCTestCase {
     func testUnauthorizedAccess() throws {
         try app.test(.GET, "")
     }
+    
+    func testGETExpressPackage() throws {
+        try app.test(.GET, "package/express", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
+            let payload = try res.content.decode(ProjectPackage.self)
+            print(payload.data.content.count)
+        })
+    }
 }

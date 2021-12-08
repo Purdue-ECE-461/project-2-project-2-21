@@ -84,7 +84,7 @@ struct PackagesController: RouteCollection {
 
 }
 
-private extension Response {
+extension Response {
     static let internalError: Response = {
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "application/json")
