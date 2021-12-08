@@ -36,6 +36,7 @@ jobs:
           name: ingest-package-on-create
           runtime: python39
           entry_point: ingest_package
+          memory_mb: 4096
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
           project_id: updated-461-project-2
           description: "Ingests package when URL is provided without content."

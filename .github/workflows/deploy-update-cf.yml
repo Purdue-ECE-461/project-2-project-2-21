@@ -36,6 +36,7 @@ jobs:
           name: score-on-update
           runtime: python39
           entry_point: score_firestore_change
+          memory_mb: 4096
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
           project_id: updated-461-project-2
           description: "Scores modules upon document update"
