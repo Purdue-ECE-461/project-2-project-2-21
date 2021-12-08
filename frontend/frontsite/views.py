@@ -98,18 +98,3 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
         })
 
-class PackageListView(ListView):
-    model = Package
-    template_name = 'fronsite/package_list.html'
-    context_object_name = 'packages'
-
-class UploadPackageView(CreateView):
-    model = Package
-    fields = ('title','uppackage')
-    success_url = '/packages/'
-    template_name = 'frontsite/upload_package.html'
-
-#package deletion
-class DeletePackageView(DeleteView):
-    model = Package
-    success_url = '/packages/'
