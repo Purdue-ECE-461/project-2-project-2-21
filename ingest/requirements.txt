@@ -1,4 +1,5 @@
 PyGithub
+GitPython
 python-dateutil
 requests
 beautifulsoup4
