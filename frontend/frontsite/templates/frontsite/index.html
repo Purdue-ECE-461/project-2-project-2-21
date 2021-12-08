@@ -24,15 +24,18 @@
     <main>
         <div class ="instructions">
             <p>
-                Please Upload/Download:
+                Please Login or Create an Account:
             </p>
         </div>
         <div class="package-updown">
-            <button class='button button1'>
-                <a href="{% url 'upload_package' %}">Upload/Download</a>
+            <button class='button button2'>
+                <a href="{% url 'login' %}">Login</a>
             </button>
             <button class='button button2'>
-                <a href="{% url 'package_list' %}">Package List</a>
+                <a href="{% url 'register' %}">Create Account</a>
+            </button>
+            <button class='button button2'>
+                <a href="{% url 'api-list' %}">Package List</a>
             </button>
         </div>
     </main>

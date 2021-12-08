@@ -1,5 +1,7 @@
 <h3>Login</h3>
 
-{% for message in messages %}
-    <p id='message'>{{ message }}</p>
-{% endfor %}
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type='submit' name='submit'>
+</form>

@@ -1,4 +1,8 @@
 from django.db import models
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 from datetime import datetime
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
@@ -21,12 +25,18 @@ class GetAPI(models.Model):
     
     def __str__(self):
         return self.title
+    
+class metadata(models.Model):
+    Name = models.TextField()
+    Version = models.TextField()
+    ID = models.TextField()
 
-def save(self, *args, **kwargs):
-    lexer = get_lexer_by_name(self.language)
-    linenos = 'table' if self.linenos else False
-    options = {'title': self.title} if self.title else {}
-    formatter = HtmlFormatter(style=self.style, linenos=linenos,
-                              full=True, **options)
-    self.highlighted = highlight(self.code, lexer, formatter)
-    super(Snippet, self).save(*args, **kwargs)
+class data(models.Model):
+    Content = models.TextField()
+    URL = models.URLField()
+    JSProgram = models.TextField()
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

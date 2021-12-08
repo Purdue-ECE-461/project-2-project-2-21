@@ -2,15 +2,17 @@
 
 <form method="POST" action="">
     {% csrf_token %}
-    {{ form.username.label }}
-    {{ form.username }}
-
+    <p>{{ form.username.label }}
+        {{ form.username }}
+    </p>
+    <p>
     {{ form.password1.label }}
     {{ form.password1 }}
-
+    </p>
+    <p>
     {{ form.password2.label }}
     {{ form.password2 }}
-
+    </p>
     {{ form.errors }}
     <input type="submit" name="Create User">
 </form>

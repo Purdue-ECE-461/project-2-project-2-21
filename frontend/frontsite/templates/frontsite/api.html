@@ -1,25 +1,5 @@
-<h1>
-    API Test
-</h1>
+{% extends "rest_framework/base.html" %}
 
-<table>
-    <caption>API Table</caption>
-    <thead>
-        <tr>
-            <th id='name'>name</th>
-            <th id='version'>version</th>
-            <th id='id'>id</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for api in data %}
-        <tr>
-            <th id='name'>{{ api.metadata.Name }}</th>
-            <th id='version'>{{ api.Version }}</th>
-            <th id='id'>{{ api.id }}</th>
-            
-        </tr>
-    {% endfor %} 
-    </tbody>
-
-</table>
+{% block bootstrap_theme %}
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}" type="text/css">
+{% endblock %}
