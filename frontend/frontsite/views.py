@@ -51,12 +51,16 @@ class APIList(generics.ListCreateAPIView):
     queryset = GetAPI.objects.all()
     serializer_class = APISerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['metadata__Name', 'metadata__Version','metadata__ID']
     def perform_create(self,serializer):
         serializer.save(owner=self.request.user)
 
 class APIDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = GetAPI.objects.all()
     serializer_class = APISerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=metadata__Name', '=metadata__Version','=metadata__ID']
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly] 
 
 class APIHighlight(generics.GenericAPIView):
@@ -67,11 +71,11 @@ class APIHighlight(generics.GenericAPIView):
         api = self.get_object()
         return Response(api.highlighted)
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-class UserDetail(generics.RetrieveAPIView):
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

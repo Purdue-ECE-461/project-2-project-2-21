@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
 from datetime import datetime
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
@@ -26,15 +27,6 @@ class GetAPI(models.Model):
     def __str__(self):
         return self.title
     
-class metadata(models.Model):
-    Name = models.TextField()
-    Version = models.TextField()
-    ID = models.TextField()
-
-class data(models.Model):
-    Content = models.TextField()
-    URL = models.URLField()
-    JSProgram = models.TextField()
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
