@@ -204,4 +204,17 @@ final class AppTests: XCTestCase {
             print(payload.data.content.count)
         })
     }
+    
+    // This is a flaky test because it requires manual entry into the database
+    func testGETSpecificPackages() throws {
+        try app.test(.POST, "packages", beforeRequest: { req in
+            let requestedPackages: [ProjectPackageRequest] = [ProjectPackageRequest(version: "1.0.0-4.0.0", name: "Underscore")]
+            try req.content.encode(requestedPackages)
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            let decodedValues = try res.content.decode([ProjectPackage.Metadata].self)
+            print(decodedValues)
+        })
+    }
 }

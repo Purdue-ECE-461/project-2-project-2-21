@@ -40,6 +40,12 @@ struct ProjectPackageRequest: Content, Codable {
         self.maximumVersion = versions.1
     }
     
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(version, forKey: .version)
+        try container.encode(name, forKey: .name)
+    }
+    
     private static func getMinMaxVersions(for version: String) -> (String, String?) {
         // TODO: Add additional checks
         // TODO: Is "-" inclusive or exclusive?

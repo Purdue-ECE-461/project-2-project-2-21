@@ -24,20 +24,22 @@ struct PackagesController: RouteCollection {
     }
     
     func index(request: Request) async throws -> [ProjectPackage.Metadata] {
-        guard let versionRequests = try? request.content.decode([ProjectPackageRequest].self) else { throw Abort(.badRequest) }
-        let requestedPackageNames = versionRequests.map(\.name)
-        
-        let offset = request.query["offset"] ?? 1
-        guard offset <= 0 else { throw Abort(.badRequest) } // Offset needs to be a positive value
-        
-        var nextPageToken: String? = nil
-        var matchingMetadata: [ProjectPackage.Metadata] = []
         
         do {
+            let versionRequests = try request.content.decode([ProjectPackageRequest].self)
+            let requestedPackageNames = versionRequests.map(\.name)
+            
+            let offset = request.query["offset"] ?? 1
+            guard offset > 0 else { throw Abort(.badRequest) } // Offset needs to be a positive value
+            
+            var nextPageToken: String? = nil
+            var matchingMetadata: [ProjectPackage.Metadata] = []
+            
+            
             // Get the documents that match
             repeat {
                 let query = constructQuery(nextPageToken: nextPageToken)
-
+                
                 // TODO: Add mask to only use metadata
                 let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(path: "packages", query: query).get()
                 
