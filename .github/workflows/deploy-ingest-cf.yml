@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: deploy-update-cf
+name: deploy-ingest-cf
 
 # Controls when the workflow will run
 on:
@@ -30,18 +30,18 @@ jobs:
         with:
           credentials_json: ${{ secrets.gcp_credentials }}
       # Deploys code to cloud functions
-      - id: deploy-update-cf
+      - id: deploy-ingest-cf
         uses: google-github-actions/deploy-cloud-functions@v0.6.0
         with:
-          name: score-on-update
+          name: ingest-package-on-create
           runtime: python39
-          entry_point: score_firestore_change
+          entry_point: ingest_package
           memory_mb: 4096
           env_vars: GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
           project_id: updated-461-project-2
-          description: "Scores modules upon document update"
-          source_dir: Scoring
+          description: "Ingests package when URL is provided without content."
+          source_dir: ingest
           timeout: 500
-          event_trigger_type: providers/cloud.firestore/eventTypes/document.update
+          event_trigger_type: providers/cloud.firestore/eventTypes/document.create
           event_trigger_resource: projects/updated-461-project-2/databases/(default)/documents/packages/{packageID}
           
