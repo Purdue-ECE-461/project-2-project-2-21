@@ -42,6 +42,7 @@ struct ProjectPackageRequest: Content, Codable {
     
     private static func getMinMaxVersions(for version: String) -> (String, String?) {
         // TODO: Add additional checks
+        // TODO: Is "-" inclusive or exclusive?
         if version.contains("-") {
             // Range
             let splitted = version.split(separator: "-")

@@ -25,6 +25,7 @@ struct PackagesController: RouteCollection {
     
     func index(request: Request) async throws -> [ProjectPackage.Metadata] {
         guard let versionRequests = try? request.content.decode([ProjectPackageRequest].self) else { throw Abort(.badRequest) }
+        let requestedPackageNames = versionRequests.map(\.name)
         
         let offset = request.query["offset"] ?? 1
         guard offset <= 0 else { throw Abort(.badRequest) } // Offset needs to be a positive value
@@ -49,7 +50,7 @@ struct PackagesController: RouteCollection {
                 // Filter by specified name
                 let currentMatchingValues = packages
                     .map(\.metadata)
-                    .filter { isMatchingPackageVersion(requests: versionRequests, metadata: $0) }
+                    .filter { isMatchingPackageVersion(names: requestedPackageNames, requests: versionRequests, metadata: $0) }
                 
                 matchingMetadata.append(contentsOf: currentMatchingValues)
             } while (nextPageToken != nil)
@@ -86,11 +87,28 @@ struct PackagesController: RouteCollection {
 
 extension PackagesController {
     private func isMatchingPackageVersion(
+        names: [String],
         requests: [ProjectPackageRequest],
         metadata: ProjectPackage.Metadata
     ) -> Bool {
-        // TODO: Implement this
-        return true
+        // Check that the current package was even requested
+        guard names.contains(metadata.name) else { return false }
+        
+        // Filter the request to the given package
+        let filteredRequests = requests.filter { $0.name == metadata.name }
+        
+        // There should be one requested version
+        assert(requests.count == 1, "There was not exactly one matching request.")
+        guard let requestCheck = filteredRequests.first else { return false }
+        
+        // Check if the package's range matches the request
+        // Min check should be ordered same or ordered ascending
+        // Max check should be ordered descending. In the event of no max value, orderedDescending is set since in range.
+        let minCheck = requestCheck.minimumVersion.versionCompare(metadata.version)
+        let maxCheck: ComparisonResult = requestCheck.maximumVersion?.versionCompare(metadata.version) ?? .orderedDescending
+        
+        // MinAllowedVersion <= GivenVersion < MaxAllowedVersion
+        return (minCheck == .orderedSame || minCheck == .orderedAscending) && (maxCheck == .orderedDescending)
     }
     
     private func constructQuery(nextPageToken: String?) -> String {
@@ -110,4 +128,11 @@ extension Response {
             body: InternalError.unexpectedError.asResponseBody()
         )
     }()
+}
+
+// CREDIT: https://sarunw.com/posts/how-to-compare-two-app-version-strings-in-swift/
+extension String {
+    func versionCompare(_ otherVersion: String) -> ComparisonResult {
+        return self.compare(otherVersion, options: .numeric)
+    }
 }
