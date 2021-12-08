@@ -24,7 +24,6 @@ struct PackagesController: RouteCollection {
     }
     
     func index(request: Request) async throws -> [ProjectPackage.Metadata] {
-        guard let name = request.parameters.get("name") else { throw Abort(.badRequest) }
         guard let versionRequests = try? request.content.decode([ProjectPackageRequest].self) else { throw Abort(.badRequest) }
         
         let offset = request.query["offset"] ?? 1
