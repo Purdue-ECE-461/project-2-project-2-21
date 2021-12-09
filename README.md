@@ -5,9 +5,9 @@ Hello! This is the Project 2 repository for group 21 in ECE461 in Fall 2021.
 
 # Files and Folders
 /server/: Contains the RESTful API
->Source/App: Contains the server code to implement route handling.
->Source/Run: Contains the executable to host the server.
->Tests: Contains the unit tests that check the implemented routes.
+> Source/App: Contains the server code to implement route handling.<br>
+> Source/Run: Contains the executable to host the server.<br>
+> Tests: Contains the unit tests that check the implemented routes.<br>
 
 /scoring/: Contains scripts related to scoring functions and test code.
 >install.py: Installs dependencies based on depend.txt.
