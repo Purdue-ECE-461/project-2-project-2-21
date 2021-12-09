@@ -217,10 +217,13 @@ def get_license_score(repo):
         lic = base64.b64decode(repo.get_license().content.encode()).decode()
 
         if lic is not None:
-            mitlic = re.search("(\\w+) License", lic).group(0)
-            if mitlic is not None:
-                logging.info("LICENSE file found")
-                licensed = 1
+            
+            mitlic_sub = re.search("(\\w+) License", lic)
+            if mitlic_sub is not None:
+                mitlic = mitlic_sub.group(0)
+                if mitlic is not None:
+                    logging.info("LICENSE file found")
+                    licensed = 1
 
     except GithubException:
         logging.info("LICENSE file not found")
