@@ -16,7 +16,6 @@ final class AppTests: XCTestCase {
         try super.tearDownWithError()
     }
 
-    // TODO: Add create package
     func testCreatePackage() throws {
         guard let fileURL = Bundle.module.url(
             forResource: "temporary",
@@ -91,8 +90,6 @@ final class AppTests: XCTestCase {
 //    }
 
     func testDELETETemporaryPackageResponseByID() throws {
-        // TODO: Create a deletable object
-
         try app.test(.POST, "package", beforeRequest: { req in
             req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
             try req.content.encode(ProjectPackage.temporary)
@@ -146,7 +143,7 @@ final class AppTests: XCTestCase {
         })
     }
 
-    // TODO: This will remove all packages
+    // This will remove all packages
 //    func testAuthenticatedReset() throws {
 //        try app.test(.DELETE, "reset", afterResponse: { res in
 //            XCTAssertEqual(res.status, .ok)

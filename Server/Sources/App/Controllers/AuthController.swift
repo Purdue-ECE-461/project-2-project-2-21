@@ -23,7 +23,6 @@ struct AuthController: RouteCollection {
         auth.post(use: create) // Create a user
     }
 
-    // TODO: Remove auth middleware
     func create(req: Request) async throws -> Response {
         let authRequest = try req.content.decode(AuthenticationRequest.self)
 
