@@ -99,16 +99,24 @@ struct PackageController: RouteCollection {
 
         if let packageID = request.parameters.get("id") {
             let path = "packages/\(packageID)"
-
-            // Check package exists
-            // Delete package
-            // Check empty dictionary
-            // TODO: Determine if empty dictionary returned on failure/succses
-            if let _ : Firestore.Document<FirestoreProjectPackage> = try? await client.getDocument(path: path).get(),
-               let deleteResponse: [String: String] = try? await client.deleteDocument(path: path).get(),
-               deleteResponse.isEmpty {
-                // TODO: Determine if actual success
-                return Response(status: .ok, headers: headers)
+            
+            do {
+                // Check package exists
+                _ = try await client.getDocument(path: path).get() as Firestore.Document<FirestoreProjectPackage>
+                
+                // Delete package
+                let deleteResponse: [String: String] = try await client.deleteDocument(path: path).get()
+                
+                // Check that response is empty.
+                // Empty: Success
+                // Non-Empty: Error
+                if deleteResponse.isEmpty {
+                    return Response(status: .ok, headers: headers)
+                }
+                
+                assertionFailure(deleteResponse.debugDescription)
+            } catch {
+                assertionFailure(error.localizedDescription)
             }
         }
 
@@ -172,7 +180,6 @@ struct PackageController: RouteCollection {
             } while (nextPageToken != nil)
 
             // If empty list, then the package doesn't exist
-            // TODO: Confirm that an empty list will occur for non-existent
             guard !matchingHistoryItems.isEmpty else {
                 assertionFailure("Did not find any matching history items")
                 return Response(status: .badRequest, headers: headers)
