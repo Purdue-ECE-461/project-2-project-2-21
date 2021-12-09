@@ -77,8 +77,7 @@ struct PackageController: RouteCollection {
 
     func update(request: Request) async -> Response {
         // TODO: Check that id, version, and name match
-        // TODO: Should the PUT request return 500 if non-existent
-
+        
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "text/plain")
 
@@ -89,7 +88,8 @@ struct PackageController: RouteCollection {
             _ = try await client.updateDocument(path: path, fields: firestorePackage, updateMask: nil).get()
             return Response(status: .ok, headers: headers)
         } catch {
-            return Response(status: .internalServerError, headers: headers)
+            assertionFailure(error.localizedDescription)
+            return Response(status: .badRequest, headers: headers)
         }
     }
 
