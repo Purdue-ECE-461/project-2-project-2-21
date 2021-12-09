@@ -12,12 +12,13 @@ from perform import (
     get_license_score,
     get_update_score,
     netscore,
-    create_repo_object
+    create_repo_object,
 )
 
 
 class Tester(unittest.TestCase):
     """Unit tester for scoring functions and ingestion"""
+
     def test0(self):
         """
         unit test for ramp-up:
@@ -33,7 +34,6 @@ class Tester(unittest.TestCase):
         ramp_up_score = calculate_ramp_up(repo, url)
         self.assertGreaterEqual(ramp_up_score, 0.5)
 
-
     def test1(self):
         """
         unit test for ramp-up:
@@ -48,7 +48,6 @@ class Tester(unittest.TestCase):
         repo = create_repo_object(github, url)
         score = calculate_ramp_up(repo, url)
         self.assertLess(score, 0.5)
-
 
     def test2(self):
         """
@@ -67,7 +66,6 @@ class Tester(unittest.TestCase):
         length = time.time() - start
         self.assertLessEqual(length, 15)
 
-
     def test3(self):
         """
         unit test for ramp-up:
@@ -83,7 +81,6 @@ class Tester(unittest.TestCase):
         returnval = calculate_ramp_up(repo, url)
         self.assertEqual(returnval, 0)
 
-
     def test5(self):
         """
         unit test for correctness:
@@ -98,7 +95,6 @@ class Tester(unittest.TestCase):
         repo = create_repo_object(github, url)
         score = calculate_correctness(repo)
         self.assertLess(score, 0.5)
-
 
     def test6(self):
         """
@@ -117,7 +113,6 @@ class Tester(unittest.TestCase):
         length = time.time() - start
         self.assertLessEqual(length, 45)
 
-
     def test7(self):
         """
         unit test for correctness:
@@ -132,7 +127,6 @@ class Tester(unittest.TestCase):
         repo = create_repo_object(github, url)
         returnval = calculate_correctness(repo)
         self.assertEqual(returnval, 0)
-
 
     def test8(self):
         """
@@ -149,7 +143,6 @@ class Tester(unittest.TestCase):
         repo = create_repo_object(github, url)
         score = busfactor(repo)
         self.assertGreater(score, 0.25)
-
 
     def test9(self):
         """
@@ -168,7 +161,6 @@ class Tester(unittest.TestCase):
         length = time.time() - start
         self.assertLessEqual(length, 20)
 
-
     def test10(self):
         """
         unit test for busfactor:
@@ -183,7 +175,6 @@ class Tester(unittest.TestCase):
         repo = create_repo_object(github, url)
         returnval = busfactor(repo)
         self.assertEqual(returnval, 0)
-
 
     def test11(self):
         """
@@ -200,7 +191,6 @@ class Tester(unittest.TestCase):
         score = busfactor(repo)
         self.assertLess(score, 0.1)
 
-
     def test13(self):
         """
         unit test for Responsiveness:
@@ -215,7 +205,6 @@ class Tester(unittest.TestCase):
         repo = create_repo_object(github, url)
         score = get_responsiveness_score(repo)
         self.assertLess(score, 0.5)
-
 
     def test14(self):
         """
@@ -234,7 +223,6 @@ class Tester(unittest.TestCase):
         length = time.time() - start
         self.assertLessEqual(length, 100)
 
-
     def test15(self):
         """
         unit test for Responsiveness:
@@ -250,7 +238,6 @@ class Tester(unittest.TestCase):
         returnval = get_responsiveness_score(repo)
         self.assertEqual(returnval, 0)
 
-
     def test17(self):
         """
         unit test for License score:
@@ -265,7 +252,6 @@ class Tester(unittest.TestCase):
         repo = create_repo_object(github, url)
         score = get_license_score(repo)
         self.assertEqual(score, 1)
-
 
     def test18(self):
         """
@@ -283,7 +269,6 @@ class Tester(unittest.TestCase):
         get_license_score(repo)
         length = time.time() - start
         self.assertLessEqual(length, 30)
-
 
     def test19(self):
         """
@@ -546,7 +531,6 @@ class Tester(unittest.TestCase):
         self.assertEqual(net_score, 0)
 
 
-
 def del_rw(action, name, exc):
     """
     Alters a read-only file
@@ -554,6 +538,7 @@ def del_rw(action, name, exc):
     os.chmod(name, stat.S_IWRITE)
     os.remove(name)
     return action, name, exc
+
 
 if __name__ == "__main__":
     unittest.main()
