@@ -132,9 +132,8 @@ struct PackageController: RouteCollection {
             _ = try await client.getDocument(
                 path: "packages/\(name)",
                 query: nil
-            ).get() as Firestore.Document<PackageScore>
+            ).get() as Firestore.Document<FirestoreProjectPackage>
         } catch {
-            assertionFailure(error.localizedDescription)
             throw Abort(.badRequest, reason: "There is no such package for the given request.")
         }
 
@@ -151,9 +150,8 @@ struct PackageController: RouteCollection {
 
             return score
         } catch {
-            assertionFailure(error.localizedDescription)
             let errorReason = "Scoring in progress. If you just created a package, please try again in a few minutes."
-            throw Abort(.internalServerError, reason: errorReason)
+            throw Abort(.serviceUnavailable, reason: errorReason)
         }
     }
 
