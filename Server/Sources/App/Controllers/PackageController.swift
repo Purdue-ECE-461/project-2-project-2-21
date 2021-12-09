@@ -127,11 +127,22 @@ struct PackageController: RouteCollection {
         guard let name = request.parameters.get("id") else {
             throw Abort(.badRequest)
         }
-
-        let path = "scores/\(name)"
+        
+        do {
+            _ = try await client.getDocument(
+                path: "packages/\(name)",
+                query: nil
+            ).get() as Firestore.Document<PackageScore>
+        } catch {
+            assertionFailure(error.localizedDescription)
+            throw Abort(.badRequest, reason: "There is no such package for the given request.")
+        }
 
         do {
-            let document: Firestore.Document<PackageScore> = try await client.getDocument(path: path, query: nil).get()
+            let document: Firestore.Document<PackageScore> = try await client.getDocument(
+                path: "scores/\(name)",
+                query: nil
+            ).get()
 
             guard let score = document.fields else {
                 assertionFailure("Found nil score")
@@ -140,9 +151,9 @@ struct PackageController: RouteCollection {
 
             return score
         } catch {
-            print(error)
             assertionFailure(error.localizedDescription)
-            throw Abort(.internalServerError)
+            let errorReason = "Scoring in progress. If you just created a package, please try again in a few minutes."
+            throw Abort(.internalServerError, reason: errorReason)
         }
     }
 
