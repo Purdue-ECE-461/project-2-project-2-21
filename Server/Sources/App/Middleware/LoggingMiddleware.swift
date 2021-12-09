@@ -44,7 +44,7 @@ struct LoggingMiddleware: AsyncMiddleware {
 
             let packageHistoryItem = PackageHistoryItem(
                 user: user,
-                date: Date().ISO8601Format(),
+                date: Date(),
                 packageMetadata: packageMetadata,
                 action: action
             )

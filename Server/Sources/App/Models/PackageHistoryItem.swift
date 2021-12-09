@@ -37,7 +37,7 @@ struct FirestorePackageHistoryItem: Codable {
                 name: username,
                 isAdmin: isAdmin
             ),
-            date: date,
+            date: ISO8601DateFormatter().date(from: date) ?? Date(),
             packageMetadata: Metadata(
                 name: name,
                 version: version,
@@ -56,11 +56,14 @@ struct PackageHistoryItem: Content, Codable {
 
     // TODO: Remove this init
     init(user: AuthenticationRequest.User,
-         date: String,
+         date: Date,
          packageMetadata: Metadata,
          action: Action) {
         self.user = user
-        self.date = date
+        
+        let dateFormatter = ISO8601DateFormatter()
+        self.date = dateFormatter.string(from: date)
+
         self.packageMetadata = packageMetadata
         self.action = action
     }
@@ -112,7 +115,7 @@ extension PackageHistoryItem {
             name: "Paschal Amusuo",
             isAdmin: true
         ),
-        date: Date().ISO8601Format(),
+        date: Date(),
         packageMetadata: Metadata(
             name: "Underscore",
             version: "1.0.0",
@@ -127,7 +130,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-500).ISO8601Format(),
+            date: Date().addingTimeInterval(-500),
             packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -140,7 +143,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-1_000).ISO8601Format(),
+            date: Date().addingTimeInterval(-1_000),
             packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -153,7 +156,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-1_500).ISO8601Format(),
+            date: Date().addingTimeInterval(-1_500),
             packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -166,7 +169,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-2_000).ISO8601Format(),
+            date: Date().addingTimeInterval(-2_000),
             packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
