@@ -108,7 +108,7 @@ extension PackageHistoryItem {
     }
 }
 
-// TODO: Remove this
+#if DEBUG
 extension PackageHistoryItem {
     static let item = PackageHistoryItem(
         user: AuthenticationRequest.User(
@@ -179,3 +179,4 @@ extension PackageHistoryItem {
         )
     ]
 }
+#endif

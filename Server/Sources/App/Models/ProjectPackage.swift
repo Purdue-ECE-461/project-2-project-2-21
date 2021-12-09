@@ -50,7 +50,7 @@ struct ProjectPackageRequest: Content, Codable {
     }
 }
 
-// TODO: Remove this
+#if DEBUG
 extension ProjectPackageRequest {
     static let mockList: [ProjectPackageRequest] = [
         ProjectPackageRequest(
@@ -67,6 +67,7 @@ extension ProjectPackageRequest {
         )
     ]
 }
+#endif
 
 struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
@@ -78,11 +79,9 @@ struct FirestoreProjectPackage: Codable {
     @Firestore.StringValue
     var version: String
 
-    // TODO: Update this to be an optional
     @Firestore.StringValue
     var content: String
 
-    // TODO: Update this to be an optional
     @Firestore.StringValue
     var url: String
 
@@ -159,7 +158,7 @@ struct PackageData: Codable {
     }
 }
 
-// TODO: Remove this mock object
+#if DEBUG
 extension ProjectPackage {
     static let mock = ProjectPackage(
         metadata: Metadata(
@@ -197,3 +196,4 @@ extension ProjectPackage {
         )
     )
 }
+#endif
