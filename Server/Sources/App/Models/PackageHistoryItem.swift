@@ -12,25 +12,25 @@ import VaporFirestore
 struct FirestorePackageHistoryItem: Codable {
     @Firestore.StringValue
     var username: String
-    
+
     @Firestore.BoolValue
     var isAdmin: Bool
-    
+
     @Firestore.StringValue
     var date: String
-    
+
     @Firestore.StringValue
     var name: String
-    
+
     @Firestore.StringValue
     var id: String
-    
+
     @Firestore.StringValue
     var version: String
-    
+
     @Firestore.StringValue
     var action: String
-    
+
     func asPackageHistoryItem() -> PackageHistoryItem {
         PackageHistoryItem(
             user: AuthenticationRequest.User(
@@ -38,7 +38,7 @@ struct FirestorePackageHistoryItem: Codable {
                 isAdmin: isAdmin
             ),
             date: date,
-            packageMetadata: ProjectPackage.Metadata(
+            packageMetadata: Metadata(
                 name: name,
                 version: version,
                 id: id
@@ -51,35 +51,35 @@ struct FirestorePackageHistoryItem: Codable {
 struct PackageHistoryItem: Content, Codable {
     let user: AuthenticationRequest.User
     let date: String
-    let packageMetadata: ProjectPackage.Metadata
+    let packageMetadata: Metadata
     let action: PackageHistoryItem.Action
-    
+
     // TODO: Remove this init
     init(user: AuthenticationRequest.User,
          date: String,
-         packageMetadata: ProjectPackage.Metadata,
+         packageMetadata: Metadata,
          action: Action) {
         self.user = user
         self.date = date
         self.packageMetadata = packageMetadata
         self.action = action
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case user = "User"
         case date = "Date"
         case packageMetadata = "PackageMetadata"
         case action = "Action"
     }
-        
+
     init(from decoder: Decoder) throws {
         let containter = try decoder.container(keyedBy: CodingKeys.self)
         self.user = try containter.decode(AuthenticationRequest.User.self, forKey: .user)
-        self.packageMetadata = try containter.decode(ProjectPackage.Metadata.self, forKey: .packageMetadata)
-        self.action = try containter.decode(PackageHistoryItem.Action.self, forKey: .action)
+        self.packageMetadata = try containter.decode(Metadata.self, forKey: .packageMetadata)
+        self.action = try containter.decode(Self.Action.self, forKey: .action)
         self.date = try containter.decode(String.self, forKey: .date)
     }
-    
+
     func asFirestoreHistoryItem() -> FirestorePackageHistoryItem {
         FirestorePackageHistoryItem(
             username: user.name,
@@ -113,14 +113,14 @@ extension PackageHistoryItem {
             isAdmin: true
         ),
         date: Date().ISO8601Format(),
-        packageMetadata: ProjectPackage.Metadata(
+        packageMetadata: Metadata(
             name: "Underscore",
             version: "1.0.0",
             id: "underscore"
         ),
         action: .download
     )
-    
+
     static let items: [PackageHistoryItem] = [
         PackageHistoryItem(
             user: AuthenticationRequest.User(
@@ -128,7 +128,7 @@ extension PackageHistoryItem {
                 isAdmin: true
             ),
             date: Date().addingTimeInterval(-500).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"
@@ -140,8 +140,8 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-1000).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            date: Date().addingTimeInterval(-1_000).ISO8601Format(),
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"
@@ -153,8 +153,8 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-1500).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            date: Date().addingTimeInterval(-1_500).ISO8601Format(),
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"
@@ -166,8 +166,8 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-2000).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            date: Date().addingTimeInterval(-2_000).ISO8601Format(),
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"

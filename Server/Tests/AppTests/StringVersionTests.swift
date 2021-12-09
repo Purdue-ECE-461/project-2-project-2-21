@@ -1,16 +1,15 @@
 //
-//  String+VersionTests.swift
+//  StringVersionTests.swift
 //  
 //
 //  Created by Charles Pisciotta on 12/8/21.
 //
 
+@testable import App
 import Foundation
 import XCTest
-@testable import App
 
 final class StringVersionTests: XCTestCase {
-    
     func testUpToNextMinorNormal() {
         let versionRequest = "~1.2.3"
         let versionRange = versionRequest.getMinMaxVersions()
@@ -18,7 +17,7 @@ final class StringVersionTests: XCTestCase {
         XCTAssertEqual(versionRange.maxVer, "1.3.0")
         XCTAssertFalse(versionRange.upperIncluded)
     }
-    
+
     func testUpToNextMajorNormal() {
         let versionRequest = "^1.2.3"
         let versionRange = versionRequest.getMinMaxVersions()
@@ -26,7 +25,7 @@ final class StringVersionTests: XCTestCase {
         XCTAssertEqual(versionRange.maxVer, "2.0.0")
         XCTAssertFalse(versionRange.upperIncluded)
     }
-    
+
     func testUpToNextMinorWithMajor0() {
         let versionRequest = "^0.2.3"
         let versionRange = versionRequest.getMinMaxVersions()
@@ -34,7 +33,7 @@ final class StringVersionTests: XCTestCase {
         XCTAssertEqual(versionRange.maxVer, "0.3.0")
         XCTAssertFalse(versionRange.upperIncluded)
     }
-    
+
     func testUpToNextMinorWithMajor0Minor0() {
         let versionRequest = "^0.0.1"
         let versionRange = versionRequest.getMinMaxVersions()
@@ -42,7 +41,7 @@ final class StringVersionTests: XCTestCase {
         XCTAssertEqual(versionRange.maxVer, "0.0.1")
         XCTAssertTrue(versionRange.upperIncluded)
     }
-    
+
     func testAny() {
         let versionRequest = "*"
         let versionRange = versionRequest.getMinMaxVersions()
@@ -50,7 +49,7 @@ final class StringVersionTests: XCTestCase {
         XCTAssertNil(versionRange.maxVer)
         XCTAssertTrue(versionRange.upperIncluded)
     }
-    
+
     func testRange() {
         let versionRequest = "1.2.3-4.5.6"
         let versionRange = versionRequest.getMinMaxVersions()
@@ -58,7 +57,7 @@ final class StringVersionTests: XCTestCase {
         XCTAssertEqual(versionRange.maxVer, "4.5.6")
         XCTAssertTrue(versionRange.upperIncluded)
     }
-    
+
     func testExact() {
         let versionRequest = "1.2.3"
         let versionRange = versionRequest.getMinMaxVersions()
@@ -66,7 +65,7 @@ final class StringVersionTests: XCTestCase {
         XCTAssertEqual(versionRange.maxVer, "1.2.3")
         XCTAssertTrue(versionRange.upperIncluded)
     }
-    
+
     func testLargeExact() {
         let versionRequest = "123.456.789"
         let versionRange = versionRequest.getMinMaxVersions()
