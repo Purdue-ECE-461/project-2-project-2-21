@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 # os.environ["$LOG_FILE"] = "1"
 # os.environ["GITHUB_TOKEN"] = "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"
 
+
 def perform_single(url):
     """Performs scoring for a single given url"""
     gtoken = os.getenv("GITHUB_TOKEN")
@@ -30,7 +31,7 @@ def perform_single(url):
         "BUS_FACTOR_SCORE",
         "RESPONSIVE_MAINTAINER_SCORE",
         "LICENSE_SCORE",
-        "UPDATE_SCORE"
+        "UPDATE_SCORE",
     ]
 
     print(*column_values, sep=" ")
@@ -38,7 +39,7 @@ def perform_single(url):
     urls = [parse_single(url)]
     raw_url_list = [url]
 
-    r_u,corr,b_f,resp,lic,upd = calc_scores(git, urls, raw_url_list)
+    r_u, corr, b_f, resp, lic, upd = calc_scores(git, urls, raw_url_list)
 
     return r_u, corr, b_f, resp, lic, upd
 
@@ -68,7 +69,7 @@ def perform(urls, url_file):
         "BUS_FACTOR_SCORE",
         "RESPONSIVE_MAINTAINER_SCORE",
         "LICENSE_SCORE",
-        "UPDATE_SCORE"
+        "UPDATE_SCORE",
     ]
 
     print(*column_values, sep=" ")
@@ -94,12 +95,7 @@ def calc_scores(git, urls, raw_url_list):
         update = get_update_score(repo)
 
         net_score = netscore(
-            [responsiveness,
-            license_score,
-            ramp_up,
-            correctness,
-            bus_factor,
-            update]
+            [responsiveness, license_score, ramp_up, correctness, bus_factor, update]
         )
         print(
             raw_url
@@ -120,6 +116,7 @@ def calc_scores(git, urls, raw_url_list):
         )
     return ramp_up, correctness, bus_factor, responsiveness, license_score, update
 
+
 def parse_single(url):
     """Parses a single given url"""
     ret_val = 0
@@ -131,6 +128,7 @@ def parse_single(url):
     elif url.startswith("https://github.com/"):
         ret_val = url.replace("https://github.com/", "")
     return ret_val
+
 
 def parse(url_file):
     """URL parser function"""
@@ -166,8 +164,12 @@ def get_responsiveness_score(repo):
         logging.info("Repository API call")
         # Issues post count
 
-        openissues = repo.get_issues(state="open", since=datetime.now() - timedelta(days=365))
-        closedissues = repo.get_issues(state="closed", since=datetime.now() - timedelta(days=365))
+        openissues = repo.get_issues(
+            state="open", since=datetime.now() - timedelta(days=365)
+        )
+        closedissues = repo.get_issues(
+            state="closed", since=datetime.now() - timedelta(days=365)
+        )
 
         issue_ratio = len(closedissues.get_page(0)) / (
             len(openissues.get_page(0)) + len(closedissues.get_page(0)) + 0.01
@@ -331,7 +333,6 @@ def get_readme_subscore(repo):
     except GithubException:
         pass
     return subscore
-
 
 
 def calculate_correctness(repo):

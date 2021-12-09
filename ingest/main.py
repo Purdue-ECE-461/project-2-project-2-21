@@ -15,9 +15,9 @@ def ingest_package(data, context):
         url_value = data["value"]["fields"]["url"]["stringValue"]
         version_value = data["value"]["fields"]["version"]["stringValue"]
         # Find affected document
-        path_parts = context.resource.split('/documents/')[1].split('/')
+        path_parts = context.resource.split("/documents/")[1].split("/")
         collection_path = path_parts[0]
-        document_path = '/'.join(path_parts[1:])
+        document_path = "/".join(path_parts[1:])
 
         affected_doc = client.collection(collection_path).document(document_path)
 
@@ -25,6 +25,4 @@ def ingest_package(data, context):
         zipf = ingest.ingest_package_link(url_value, version_value)
 
         # Write ingested zip to affected document
-        affected_doc.set({
-            'content': zipf.decode('UTF-8')
-        }, merge=True)
+        affected_doc.set({"content": zipf.decode("UTF-8")}, merge=True)

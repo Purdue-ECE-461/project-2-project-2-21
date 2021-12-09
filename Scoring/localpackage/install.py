@@ -15,7 +15,7 @@ def install():
     filename = "depend.txt"
     num_d = 0
 
-    with open(filename, "r", encoding='UTF-8') as file:
+    with open(filename, "r", encoding="UTF-8") as file:
         dependencies = file.read().splitlines()
         num_d = len(dependencies)
         for dep in dependencies:

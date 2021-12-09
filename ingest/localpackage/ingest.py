@@ -25,32 +25,32 @@ def get_link_details(url):
     name = parts[1]
     return owner, name
 
+
 def ingest_package_link(github_url, release_tag):
     """
-    Given github url, creates base64 encoding of the ZIP file from the 
+    Given github url, creates base64 encoding of the ZIP file from the
     github repo.
     """
     headers = {
-        "Authorization" : os.getenv("GITHUB_TOKEN"),
-        "Accept": 'application/vnd.github.v3+json',
+        "Authorization": os.getenv("GITHUB_TOKEN"),
+        "Accept": "application/vnd.github.v3+json",
     }
-    
+
     owner, repo = get_link_details(github_url)
 
     ref = release_tag
-    ext = 'zip'
-    
-    url = f'https://api.github.com/repos/{owner}/{repo}/{ext}ball/{ref}'
-    print('url:', url)
-    
-    r = requests.get(url, headers=headers)
-    
-    if r.status_code == 200:
-        print('size:', len(r.content))
-        encoded = base64.b64encode(r.content)
-        #print(encoded)
-        return encoded
+    ext = "zip"
+
+    url = f"https://api.github.com/repos/{owner}/{repo}/{ext}ball/{ref}"
+    print("url:", url)
+
+    req = requests.get(url, headers=headers)
+
+    if req.status_code == 200:
+        print("size:", len(req.content))
+        encoded = base64.b64encode(req.content)
+        # print(encoded)
     else:
-        print(r.text)
-        return ""
-    
+        print(req.text)
+        encoded = ""
+    return encoded
