@@ -32,7 +32,7 @@ def score_firestore_change(data, context):
             }
         )
     # Handle errors if it fails to gather scores
-    except Exception as exception:
+    except KeyError as exception:
         event_message = f"This error was triggered by messageID {context.event_id} \
             published at {context.timestamp}"
         new_doc = client.collection("scores").document(id_value)
