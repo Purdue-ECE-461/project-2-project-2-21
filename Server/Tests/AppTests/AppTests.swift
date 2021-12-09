@@ -138,8 +138,8 @@ final class AppTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(score.licenseScore, 0)
             XCTAssertLessThanOrEqual(score.licenseScore, 1)
 
-            XCTAssertGreaterThanOrEqual(score.goodPinningPractice, 0)
-            XCTAssertLessThanOrEqual(score.goodPinningPractice, 1)
+            XCTAssertGreaterThanOrEqual(score.updateScore, 0)
+            XCTAssertLessThanOrEqual(score.updateScore, 1)
         })
     }
 
