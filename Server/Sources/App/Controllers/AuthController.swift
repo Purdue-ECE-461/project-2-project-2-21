@@ -54,8 +54,6 @@ struct AuthController: RouteCollection {
     }
 
     func getBearerToken(req: Request) async throws -> Response {
-        // TODO: Change auth implementation
-
         let authRequest = try req.content.decode(AuthenticationRequest.self)
 
         let localPayload = AuthJWTPayload(
