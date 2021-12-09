@@ -23,13 +23,16 @@ struct ResetController: RouteCollection {
         }
     }
 
-    func reset(req: Request) async throws -> Response {
-        // TODO: Check if authorized user (isAdmin)
-
+    func reset(req: Request) async -> Response {
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "text/plain")
 
         do {
+            // Verify that a user is an admin
+            // If not, user doesn't have permission to reset the registry.
+            let payload = try req.jwt.verify(as: AuthJWTPayload.self)
+            guard payload.isAdmin else { return Response(status: .unauthorized, headers: headers) }
+            
             let documents: [Firestore.Document<FirestoreProjectPackage>] = try await client.listDocuments(
                 path: "packages"
             ).get()
@@ -39,7 +42,7 @@ struct ResetController: RouteCollection {
                 _ = try await client.deleteDocument(path: "packages/\(id)").get() as [String: String]
             }
 
-            return Response(status: .ok, headers: headers, body: .init())
+            return Response(status: .ok, headers: headers)
         } catch {
             return Response(status: .internalServerError, headers: headers)
         }
