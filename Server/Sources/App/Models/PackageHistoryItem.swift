@@ -76,7 +76,7 @@ struct PackageHistoryItem: Content, Codable {
         let containter = try decoder.container(keyedBy: CodingKeys.self)
         self.user = try containter.decode(AuthenticationRequest.User.self, forKey: .user)
         self.packageMetadata = try containter.decode(Metadata.self, forKey: .packageMetadata)
-        self.action = try containter.decode(PackageHistoryItem.Action.self, forKey: .action)
+        self.action = try containter.decode(Self.Action.self, forKey: .action)
         self.date = try containter.decode(String.self, forKey: .date)
     }
 
@@ -140,7 +140,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-1000).ISO8601Format(),
+            date: Date().addingTimeInterval(-1_000).ISO8601Format(),
             packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -153,7 +153,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-1500).ISO8601Format(),
+            date: Date().addingTimeInterval(-1_500).ISO8601Format(),
             packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
@@ -166,7 +166,7 @@ extension PackageHistoryItem {
                 name: "Paschal Amusuo",
                 isAdmin: true
             ),
-            date: Date().addingTimeInterval(-2000).ISO8601Format(),
+            date: Date().addingTimeInterval(-2_000).ISO8601Format(),
             packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",

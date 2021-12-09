@@ -60,7 +60,6 @@ struct PackageScore: Content {
         self.licenseScore = licenseScore
         self.goodPinningPractice = goodPinningPractice
     }
-
 }
 
 extension PackageScore: Codable {

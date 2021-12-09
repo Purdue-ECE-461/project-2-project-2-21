@@ -40,6 +40,7 @@ struct PackagesController: RouteCollection {
                 let query = constructQuery(nextPageToken: nextPageToken)
 
                 // TODO: Add mask to only use metadata
+                // swiftlint:disable:next line_length
                 let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(
                     path: "packages",
                     query: query
@@ -54,7 +55,13 @@ struct PackagesController: RouteCollection {
                 // Filter by specified name
                 let currentMatchingValues = packages
                     .map(\.metadata)
-                    .filter { isMatchingPackageVersion(names: requestedPackageNames, requests: versionRequests, metadata: $0) }
+                    .filter {
+                        isMatchingPackageVersion(
+                            names: requestedPackageNames,
+                            requests: versionRequests,
+                            metadata: $0
+                        )
+                    }
 
                 matchingMetadata.append(contentsOf: currentMatchingValues)
             } while (nextPageToken != nil)
@@ -104,15 +111,23 @@ extension PackagesController {
         assert(filteredRequests.count == 1, "There was not exactly one matching request.")
         guard let requestCheck = filteredRequests.first else { return false }
 
+        // swiftlint:disable line_length
         // Check if the package's range matches the request
         // Min check should be ordered same or ordered ascending
         // Max check should be ordered descending. In the event of no max value, orderedDescending is set since in range.
         let minCheck = requestCheck.minimumVersion.versionCompare(metadata.version)
         let maxCheck: ComparisonResult = requestCheck.maximumVersion?.versionCompare(metadata.version) ?? .orderedDescending
+        // swiftlint:enable line_length
 
-        // MinAllowedVersion <= GivenVersion < MaxAllowedVersion
-        return (minCheck == .orderedSame || minCheck == .orderedAscending) &&
-               (requestCheck.includesUpperBound ? (maxCheck == .orderedSame || maxCheck == .orderedDescending) : maxCheck == .orderedDescending)
+        // MinAllowedVersion <= GivenVersion < MaxAllowedVersion (when upper bound is included)
+        // or
+        // MinAllowedVersion <= GivenVersion < MaxAllowedVersion (when upper bound is not included)
+        if requestCheck.includesUpperBound {
+            return (minCheck == .orderedSame || minCheck == .orderedAscending) &&
+                   (maxCheck == .orderedSame || maxCheck == .orderedDescending)
+        } else {
+            return (minCheck == .orderedSame || minCheck == .orderedAscending) && maxCheck == .orderedDescending
+        }
     }
 
     private func constructQuery(nextPageToken: String?) -> String {

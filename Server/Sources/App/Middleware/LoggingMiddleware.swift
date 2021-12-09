@@ -9,6 +9,7 @@ import Foundation
 import Vapor
 import VaporFirestore
 
+// swiftlint:disable cyclomatic_complexity
 struct LoggingMiddleware: AsyncMiddleware {
 
     let client: FirestoreResource
@@ -48,11 +49,11 @@ struct LoggingMiddleware: AsyncMiddleware {
                 action: action
             )
 
-            let _ : Firestore.Document<FirestorePackageHistoryItem> = try await client.createDocument(
+            _ = try await client.createDocument(
                 path: "requests",
                 name: UUID().uuidString,
                 fields: packageHistoryItem.asFirestoreHistoryItem()
-            ).get()
+            ).get() as Firestore.Document<FirestorePackageHistoryItem>
         } catch {
             print(error)
             assertionFailure(error.localizedDescription)
@@ -112,7 +113,12 @@ struct LoggingMiddleware: AsyncMiddleware {
                     return nil
                 }
 
-                let doc: Firestore.Document<ProjectPackage> = try await client.getDocument(path: "package/\(packageID)", query: nil, mask: nil).get()
+                let doc: Firestore.Document<ProjectPackage> = try await client.getDocument(
+                    path: "package/\(packageID)",
+                    query: nil,
+                    mask: nil
+                ).get()
+
                 return doc.fields?.metadata
             } catch {
                 assertionFailure(error.localizedDescription)
@@ -182,5 +188,4 @@ struct LoggingMiddleware: AsyncMiddleware {
 
         return nil
     }
-
 }

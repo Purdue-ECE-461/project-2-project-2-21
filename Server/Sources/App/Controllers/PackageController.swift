@@ -9,6 +9,7 @@ import Foundation
 import Vapor
 import VaporFirestore
 
+// swiftlint:disable type_body_length
 struct PackageController: RouteCollection {
 
     private var client: FirestoreResource
@@ -36,7 +37,11 @@ struct PackageController: RouteCollection {
         let firestorePackage = package.asFirestoreProjectPackage()
 
         do {
-            _ = try await client.createDocument(path: "packages", name: package.metadata.id, fields: firestorePackage).get()
+            _ = try await client.createDocument(
+                path: "packages",
+                name: package.metadata.id,
+                fields: firestorePackage
+            ).get()
 
             var headers = HTTPHeaders()
             headers.add(name: .contentType, value: "application/json")
@@ -56,6 +61,7 @@ struct PackageController: RouteCollection {
         if let packageID = req.parameters.get("id") {
             let path = "packages/\(packageID)"
 
+            // swiftlint:disable:next line_length
             if let document: Firestore.Document<FirestoreProjectPackage> = try? await client.getDocument(path: path).get(),
                let package = document.fields?.asProjectPackage(),
                let responseBody = try? package.asResponseBody() {
@@ -98,7 +104,7 @@ struct PackageController: RouteCollection {
             // Delete package
             // Check empty dictionary
             // TODO: Determine if empty dictionary returned on failure/succses
-            if let _: Firestore.Document<FirestoreProjectPackage> = try? await client.getDocument(path: path).get(),
+            if let _ : Firestore.Document<FirestoreProjectPackage> = try? await client.getDocument(path: path).get(),
                let deleteResponse: [String: String] = try? await client.deleteDocument(path: path).get(),
                deleteResponse.isEmpty {
                 // TODO: Determine if actual success
@@ -149,10 +155,10 @@ struct PackageController: RouteCollection {
             repeat {
                 let query = constructQuery(nextPageToken: nextPageToken)
 
-                let packagesList: Firestore.List.Response<FirestorePackageHistoryItem> = try await client.listDocumentsPaginated(
+                let packagesList = try await client.listDocumentsPaginated(
                     path: "requests",
                     query: query
-                ).get()
+                ).get() as Firestore.List.Response<FirestorePackageHistoryItem>
 
                 nextPageToken = packagesList.nextPageToken
 
@@ -184,7 +190,12 @@ struct PackageController: RouteCollection {
         } catch {
             print(error)
             assertionFailure(error.localizedDescription)
-            return Response(status: .internalServerError, headers: headers, body: InternalError.unexpectedError.asResponseBody())
+
+            return Response(
+                status: .internalServerError,
+                headers: headers,
+                body: InternalError.unexpectedError.asResponseBody()
+            )
         }
     }
 
@@ -202,10 +213,10 @@ struct PackageController: RouteCollection {
             repeat {
                 let query = constructQuery(nextPageToken: nextPageToken)
 
-                let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(
+                let packagesList = try await client.listDocumentsPaginated(
                     path: "packages",
                     query: query
-                ).get()
+                ).get() as Firestore.List.Response<FirestoreProjectPackage>
 
                 nextPageToken = packagesList.nextPageToken
 
@@ -221,7 +232,7 @@ struct PackageController: RouteCollection {
 
             // Delete the documents
             for documentID in docIDsToDelete {
-                let _ : [String: String] = try await client.deleteDocument(path: "packages/\(documentID)").get()
+                _ = try await client.deleteDocument(path: "packages/\(documentID)").get() as [String: String]
             }
 
             return Response(status: .ok, headers: headers)
@@ -231,7 +242,6 @@ struct PackageController: RouteCollection {
 
         return Response(status: .internalServerError, headers: headers)
     }
-
 }
 
 extension PackageController {

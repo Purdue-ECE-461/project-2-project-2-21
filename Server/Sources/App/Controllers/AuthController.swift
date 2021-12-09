@@ -6,12 +6,11 @@
 //
 
 import Foundation
+import JWT
 import Vapor
 import VaporFirestore
-import JWT
 
 struct AuthController: RouteCollection {
-
     private var client: FirestoreResource
 
     init(app: Application) {
@@ -39,7 +38,11 @@ struct AuthController: RouteCollection {
         do {
             let bearerToken = try req.jwt.sign(payload)
             let firebasePayload = FirestoreAuth(token: bearerToken)
-            _ = try await client.createDocument(path: "users", name: authRequest.user.name, fields: firebasePayload).get()
+            _ = try await client.createDocument(
+                path: "users",
+                name: authRequest.user.name,
+                fields: firebasePayload
+            ).get()
 
             var headers = HTTPHeaders()
             headers.add(name: .contentType, value: "application/json")

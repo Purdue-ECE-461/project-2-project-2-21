@@ -30,11 +30,13 @@ struct ResetController: RouteCollection {
         headers.add(name: .contentType, value: "text/plain")
 
         do {
-            let documents: [Firestore.Document<FirestoreProjectPackage>] = try await client.listDocuments(path: "packages").get()
+            let documents: [Firestore.Document<FirestoreProjectPackage>] = try await client.listDocuments(
+                path: "packages"
+            ).get()
 
             for document in documents {
                 let id = document.id
-                let _ : [String: String] = try await client.deleteDocument(path: "packages/\(id)").get()
+                _ = try await client.deleteDocument(path: "packages/\(id)").get() as [String: String]
             }
 
             return Response(status: .ok, headers: headers, body: .init())

@@ -48,7 +48,6 @@ struct ProjectPackageRequest: Content, Codable {
         try container.encode(version, forKey: .version)
         try container.encode(name, forKey: .name)
     }
-
 }
 
 // TODO: Remove this

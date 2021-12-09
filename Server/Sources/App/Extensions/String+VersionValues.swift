@@ -13,11 +13,12 @@ struct VerRangeInfo {
     let upperIncluded: Bool
 }
 
+// swiftlint:disable cyclomatic_complexity
 extension String {
     /// Credit: https://devhints.io/semver
     /// - Attention: Assume all versions will be MAJOR.MINOR.PATCH
     /// - Parameter version: The version request for a given package
-    /// - Returns: Returns the minimum and maximum allowed versions given the request. Also indicates if the upper bound is inclusive.
+    /// - Returns: Returns the acceptable version range object.
     func getMinMaxVersions() -> VerRangeInfo {
 
         // TODO: Handle "X"
@@ -109,7 +110,6 @@ extension String {
                 let nextMajorVersion = "\(nextMajor).0.0"
                 return VerRangeInfo(minVer: givenVersion, maxVer: nextMajorVersion, upperIncluded: false)
             }
-
         } else if self.contains("-") {
             // Example: 1.2.3 - 2.3.4
             // Acceptable Versions: >=1.2.3 <=2.3.4

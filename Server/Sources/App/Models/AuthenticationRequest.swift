@@ -6,9 +6,9 @@
 //
 
 import Foundation
+import JWT
 import Vapor
 import VaporFirestore
-import JWT
 
 struct FirestoreAuth: Content, Codable {
     @Firestore.StringValue var token: String
