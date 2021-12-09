@@ -77,8 +77,7 @@ struct PackageController: RouteCollection {
 
     func update(request: Request) async -> Response {
         // TODO: Check that id, version, and name match
-        // TODO: Should the PUT request return 500 if non-existent
-
+        
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "text/plain")
 
@@ -89,7 +88,8 @@ struct PackageController: RouteCollection {
             _ = try await client.updateDocument(path: path, fields: firestorePackage, updateMask: nil).get()
             return Response(status: .ok, headers: headers)
         } catch {
-            return Response(status: .internalServerError, headers: headers)
+            assertionFailure(error.localizedDescription)
+            return Response(status: .badRequest, headers: headers)
         }
     }
 
@@ -99,16 +99,24 @@ struct PackageController: RouteCollection {
 
         if let packageID = request.parameters.get("id") {
             let path = "packages/\(packageID)"
-
-            // Check package exists
-            // Delete package
-            // Check empty dictionary
-            // TODO: Determine if empty dictionary returned on failure/succses
-            if let _ : Firestore.Document<FirestoreProjectPackage> = try? await client.getDocument(path: path).get(),
-               let deleteResponse: [String: String] = try? await client.deleteDocument(path: path).get(),
-               deleteResponse.isEmpty {
-                // TODO: Determine if actual success
-                return Response(status: .ok, headers: headers)
+            
+            do {
+                // Check package exists
+                _ = try await client.getDocument(path: path).get() as Firestore.Document<FirestoreProjectPackage>
+                
+                // Delete package
+                let deleteResponse: [String: String] = try await client.deleteDocument(path: path).get()
+                
+                // Check that response is empty.
+                // Empty: Success
+                // Non-Empty: Error
+                if deleteResponse.isEmpty {
+                    return Response(status: .ok, headers: headers)
+                }
+                
+                assertionFailure(deleteResponse.debugDescription)
+            } catch {
+                assertionFailure(error.localizedDescription)
             }
         }
 
@@ -119,11 +127,21 @@ struct PackageController: RouteCollection {
         guard let name = request.parameters.get("id") else {
             throw Abort(.badRequest)
         }
-
-        let path = "scores/\(name)"
+        
+        do {
+            _ = try await client.getDocument(
+                path: "packages/\(name)",
+                query: nil
+            ).get() as Firestore.Document<FirestoreProjectPackage>
+        } catch {
+            throw Abort(.badRequest, reason: "There is no such package for the given request.")
+        }
 
         do {
-            let document: Firestore.Document<PackageScore> = try await client.getDocument(path: path, query: nil).get()
+            let document: Firestore.Document<PackageScore> = try await client.getDocument(
+                path: "scores/\(name)",
+                query: nil
+            ).get()
 
             guard let score = document.fields else {
                 assertionFailure("Found nil score")
@@ -132,9 +150,8 @@ struct PackageController: RouteCollection {
 
             return score
         } catch {
-            print(error)
-            assertionFailure(error.localizedDescription)
-            throw Abort(.internalServerError)
+            let errorReason = "Scoring in progress. If you just created a package, please try again in a few minutes."
+            throw Abort(.serviceUnavailable, reason: errorReason)
         }
     }
 
@@ -172,7 +189,6 @@ struct PackageController: RouteCollection {
             } while (nextPageToken != nil)
 
             // If empty list, then the package doesn't exist
-            // TODO: Confirm that an empty list will occur for non-existent
             guard !matchingHistoryItems.isEmpty else {
                 assertionFailure("Did not find any matching history items")
                 return Response(status: .badRequest, headers: headers)
