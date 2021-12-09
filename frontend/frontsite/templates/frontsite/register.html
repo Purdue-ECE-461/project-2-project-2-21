@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Register Account</title>
+    
+    <link href="{% static 'styles.css' %}" rel="stylesheet" type="text/css" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.1/URI.min.js"></script>
+    <script type="text/javascript" src="ui.js"></script>
+</head>
+<body>
+    <h3>Register</h3>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <p>{{ form.username.label }}
+            {{ form.username }}
+        </p>
+        <p>
+        {{ form.password1.label }}
+        {{ form.password1 }}
+        </p>
+        <p>
+        {{ form.password2.label }}
+        {{ form.password2 }}
+        </p>
+        {{ form.errors }}
+        <input type="submit" name="Create User">
+    </form>
+</body>
+</html>

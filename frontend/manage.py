@@ -5,13 +5,10 @@ import sys
 
 
 def main():
-    """main function to run django command-line utility"""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'helloproject.settings')
+    """Run administrative tasks."""
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'frontend.settings')
     try:
         from django.core.management import execute_from_command_line
-        from django.core.management.commands.runserver import Command as runserver
-        runserver.default_port = os.environ.get('PORT', '8080')
-        runserver.default_addr = '0.0.0.0'
     except ImportError as exc:
         raise ImportError(
             "Couldn't import Django. Are you sure it's installed and "

@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>ECE 46100: Project 2</title>
+    
+    <link href="{% static 'styles.css' %}" rel="stylesheet" type="text/css" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.1/URI.min.js"></script>
+    <script type="text/javascript" src="ui.js"></script>
+</head>
+
+
+<body>
+    <header>
+        <img src="{% static 'purdue-logo.svg'%}" alt='purdue-logo' style="padding-top: 40px">
+        <h1>ECE 46100: Project 2</h1>
+    </header>
+    <main>
+        <div class ="instructions">
+            <p>
+                Please Login or Create an Account:
+            </p>
+        </div>
+        <div class="package-updown">
+            <div class='button button2' title='Login'>
+                <a href="{% url 'login' %}">Login</a>
+            </div>
+            <div class='button button2' title='Create Account'>
+                <a href="{% url 'register' %}">Create Account</a>
+            </div>
+            <div class='button button2' title='Package List'>
+                <a href="{% url 'api-list' %}">Package List</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+    
+    </footer>
+</body>
+
+</html>
