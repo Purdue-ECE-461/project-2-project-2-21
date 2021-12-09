@@ -229,9 +229,11 @@ def get_license_score(repo):
             readme = base64.b64decode(repo.get_readme().content.encode()).decode()
             if readme is not None:
                 logging.info("README file found")
-                licensed = re.search("(\\w+) license", readme).group(0)
-                if licensed is not None:
-                    licensed = 1
+                result = re.search("(\\w+) license", readme)
+                if result is not none:
+                    licensed = result.group(0)
+                    if licensed is not None:
+                        licensed = 1
 
         except GithubException:
             pass
