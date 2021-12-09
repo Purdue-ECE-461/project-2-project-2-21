@@ -53,13 +53,13 @@ struct PackageHistoryItem: Content, Codable {
     let date: String
     let packageMetadata: Metadata
     let action: PackageHistoryItem.Action
-    
+
     init(user: AuthenticationRequest.User,
          date: Date,
          packageMetadata: Metadata,
          action: Action) {
         self.user = user
-        
+
         let dateFormatter = ISO8601DateFormatter()
         self.date = dateFormatter.string(from: date)
 

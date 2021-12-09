@@ -32,7 +32,7 @@ struct ResetController: RouteCollection {
             // If not, user doesn't have permission to reset the registry.
             let payload = try req.jwt.verify(as: AuthJWTPayload.self)
             guard payload.isAdmin else { return Response(status: .unauthorized, headers: headers) }
-            
+
             let documents: [Firestore.Document<FirestoreProjectPackage>] = try await client.listDocuments(
                 path: "packages"
             ).get()
