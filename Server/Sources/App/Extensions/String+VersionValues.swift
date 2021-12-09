@@ -21,9 +21,10 @@ extension String {
     /// - Returns: Returns the acceptable version range object.
     func getMinMaxVersions() -> VerRangeInfo {
 
-        // TODO: Handle "X"
+        // In a future update, this should handle "x" or "X".
         if self.contains("x") || self.contains("X") {
             // Assume all versions when x is seen
+            assertionFailure("Did not expect \"x\" or \"X\" in version requirement string.")
             return VerRangeInfo(minVer: "0.0.0", maxVer: nil, upperIncluded: true)
         }
 
