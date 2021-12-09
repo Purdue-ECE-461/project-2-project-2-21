@@ -53,8 +53,7 @@ struct PackageHistoryItem: Content, Codable {
     let date: String
     let packageMetadata: Metadata
     let action: PackageHistoryItem.Action
-
-    // TODO: Remove this init
+    
     init(user: AuthenticationRequest.User,
          date: Date,
          packageMetadata: Metadata,
@@ -102,7 +101,7 @@ extension PackageHistoryItem {
         case update = "UPDATE"
         case download = "DOWNLOAD"
         case rate = "RATE"
-        case delete = "DELETE" // TODO: Remove logging for delete and delete all related entries
+        case delete = "DELETE"
         /// This should never be used, but is used for nil-coalescing
         case unknown = "UNKNOWN"
     }
