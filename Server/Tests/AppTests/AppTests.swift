@@ -235,4 +235,13 @@ final class AppTests: XCTestCase {
             dump(historyItems)
         })
     }
+    
+    func testGETPackageHistoryFailForNonExistentPackage() throws {
+        try app.test(.GET, "package/byName/THIS_DOES_NOT_EXIST", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .badRequest)
+            XCTAssertEqual(res.status, .ok)
+        })
+    }
 }
