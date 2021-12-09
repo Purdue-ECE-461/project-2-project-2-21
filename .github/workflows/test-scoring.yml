@@ -28,4 +28,6 @@ jobs:
           pip install -r requirements.txt
           
       - name: Run Tests
-        run: python -m unittest test.py
+        run: |
+          cd Scoring
+          python -m unittest test.py
