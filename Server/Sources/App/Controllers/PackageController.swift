@@ -77,7 +77,7 @@ struct PackageController: RouteCollection {
 
     func update(request: Request) async -> Response {
         // TODO: Check that id, version, and name match
-        
+
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "text/plain")
 
@@ -99,21 +99,21 @@ struct PackageController: RouteCollection {
 
         if let packageID = request.parameters.get("id") {
             let path = "packages/\(packageID)"
-            
+
             do {
                 // Check package exists
                 _ = try await client.getDocument(path: path).get() as Firestore.Document<FirestoreProjectPackage>
-                
+
                 // Delete package
                 let deleteResponse: [String: String] = try await client.deleteDocument(path: path).get()
-                
+
                 // Check that response is empty.
                 // Empty: Success
                 // Non-Empty: Error
                 if deleteResponse.isEmpty {
                     return Response(status: .ok, headers: headers)
                 }
-                
+
                 assertionFailure(deleteResponse.debugDescription)
             } catch {
                 assertionFailure(error.localizedDescription)
@@ -127,7 +127,7 @@ struct PackageController: RouteCollection {
         guard let name = request.parameters.get("id") else {
             throw Abort(.badRequest)
         }
-        
+
         do {
             _ = try await client.getDocument(
                 path: "packages/\(name)",

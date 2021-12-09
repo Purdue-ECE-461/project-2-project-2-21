@@ -145,12 +145,12 @@ struct PackageData: Codable {
         case content = "Content"
         case url = "URL"
     }
-    
+
     init(content: String?, url: String?) {
         self.content = content ?? ""
         self.url = url ?? ""
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.content = try container.decodeIfPresent(String.self, forKey: .content) ?? ""

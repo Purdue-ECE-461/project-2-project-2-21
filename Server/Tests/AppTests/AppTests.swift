@@ -138,8 +138,8 @@ final class AppTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(score.licenseScore, 0)
             XCTAssertLessThanOrEqual(score.licenseScore, 1)
 
-            XCTAssertGreaterThanOrEqual(score.goodPinningPractice, 0)
-            XCTAssertLessThanOrEqual(score.goodPinningPractice, 1)
+            XCTAssertGreaterThanOrEqual(score.updateScore, 0)
+            XCTAssertLessThanOrEqual(score.updateScore, 1)
         })
     }
 
@@ -233,6 +233,15 @@ final class AppTests: XCTestCase {
             let historyItems = try res.content.decode([PackageHistoryItem].self)
             XCTAssertEqual(historyItems.count, 2) // Flaky. Comment out unless certain.
             dump(historyItems)
+        })
+    }
+    
+    func testGETPackageHistoryFailForNonExistentPackage() throws {
+        try app.test(.GET, "package/byName/THIS_DOES_NOT_EXIST", beforeRequest: { req in
+            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .badRequest)
+            XCTAssertEqual(res.status, .ok)
         })
     }
 }
