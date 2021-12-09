@@ -25,6 +25,7 @@ jobs:
         pip install requests
         pip install bcrypt
         pip install beautifulsoup4
+        pip install google-cloud-firestore
     - name: Analysing the code with pylint
       run: |
         pylint $(find . -name "*.py" | xargs)
