@@ -23,17 +23,17 @@ struct PackageScore: Content {
     private(set) var responsiveMaintainer: Double
 
     @Firestore.DoubleValue
-    private(set) var licenseScore: Double // TODO: Should this be an integer?
+    private(set) var licenseScore: Double
 
-    @Firestore.DoubleValue // TODO: In database as "UpdateScore"
-    private(set) var goodPinningPractice: Double
+    @Firestore.DoubleValue
+    private(set) var updateScore: Double
 
     init(rampUp: Double,
          correctness: Double,
          busFactor: Double,
          responsiveMaintainer: Double,
          licenseScore: Double,
-         goodPinningPractice: Double) {
+         updateScore: Double) {
 
         assert(rampUp >= 0)
         assert(rampUp <= 1)
@@ -50,15 +50,15 @@ struct PackageScore: Content {
         assert(licenseScore >= 0)
         assert(licenseScore <= 1)
 
-        assert(goodPinningPractice >= 0)
-        assert(goodPinningPractice <= 1)
+        assert(updateScore >= 0)
+        assert(updateScore <= 1)
 
         self.rampUp = rampUp
         self.correctness = correctness
         self.busFactor = busFactor
         self.responsiveMaintainer = responsiveMaintainer
         self.licenseScore = licenseScore
-        self.goodPinningPractice = goodPinningPractice
+        self.updateScore = updateScore
     }
 }
 
@@ -69,7 +69,7 @@ extension PackageScore: Codable {
         case busFactor = "BusFactor"
         case responsiveMaintainer = "ResponsiveMaintainer"
         case licenseScore = "LicenseScore"
-        case goodPinningPractice = "GoodPinningPractice"
+        case updateScore = "UpdateScore"
     }
 }
 
@@ -81,7 +81,7 @@ extension PackageScore {
         busFactor: 0.85,
         responsiveMaintainer: 0.43,
         licenseScore: 1,
-        goodPinningPractice: 0.65
+        updateScore: 0.65
     )
 }
 #endif
