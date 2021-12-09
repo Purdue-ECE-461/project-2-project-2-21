@@ -149,7 +149,10 @@ struct PackageController: RouteCollection {
             repeat {
                 let query = constructQuery(nextPageToken: nextPageToken)
 
-                let packagesList: Firestore.List.Response<FirestorePackageHistoryItem> = try await client.listDocumentsPaginated(path: "requests", query: query).get()
+                let packagesList: Firestore.List.Response<FirestorePackageHistoryItem> = try await client.listDocumentsPaginated(
+                    path: "requests",
+                    query: query
+                ).get()
 
                 nextPageToken = packagesList.nextPageToken
 
@@ -199,7 +202,10 @@ struct PackageController: RouteCollection {
             repeat {
                 let query = constructQuery(nextPageToken: nextPageToken)
 
-                let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(path: "packages", query: query).get()
+                let packagesList: Firestore.List.Response<FirestoreProjectPackage> = try await client.listDocumentsPaginated(
+                    path: "packages",
+                    query: query
+                ).get()
 
                 nextPageToken = packagesList.nextPageToken
 
@@ -215,7 +221,7 @@ struct PackageController: RouteCollection {
 
             // Delete the documents
             for documentID in docIDsToDelete {
-                _ : [String: String] = try await client.deleteDocument(path: "packages/\(documentID)").get()
+                let _ : [String: String] = try await client.deleteDocument(path: "packages/\(documentID)").get()
             }
 
             return Response(status: .ok, headers: headers)

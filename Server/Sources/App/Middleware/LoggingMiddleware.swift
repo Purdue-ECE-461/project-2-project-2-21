@@ -48,7 +48,11 @@ struct LoggingMiddleware: AsyncMiddleware {
                 action: action
             )
 
-            _ : Firestore.Document<FirestorePackageHistoryItem> = try await client.createDocument(path: "requests", name: UUID().uuidString, fields: packageHistoryItem.asFirestoreHistoryItem()).get()
+            let _ : Firestore.Document<FirestorePackageHistoryItem> = try await client.createDocument(
+                path: "requests",
+                name: UUID().uuidString,
+                fields: packageHistoryItem.asFirestoreHistoryItem()
+            ).get()
         } catch {
             print(error)
             assertionFailure(error.localizedDescription)
@@ -57,7 +61,7 @@ struct LoggingMiddleware: AsyncMiddleware {
         return response
     }
 
-    private func getPackageMetadata(request: Request, previousResponse: Response) async -> ProjectPackage.Metadata? {
+    private func getPackageMetadata(request: Request, previousResponse: Response) async -> Metadata? {
         // Non-specific package routes don't have package logging
         guard let firstPath = request.route?.path.first?.description else { return nil }
         guard (firstPath != "authenticate") && (firstPath != "reset") && (firstPath != "packages") else { return nil }
@@ -124,7 +128,12 @@ struct LoggingMiddleware: AsyncMiddleware {
                     return nil
                 }
 
-                let doc: Firestore.Document<FirestoreProjectPackage> = try await client.getDocument(path: "packages/\(packageID)", query: nil, mask: nil).get()
+                let doc: Firestore.Document<FirestoreProjectPackage> = try await client.getDocument(
+                    path: "packages/\(packageID)",
+                    query: nil,
+                    mask: nil
+                ).get()
+
                 return doc.fields?.asProjectPackage().metadata
             } catch {
                 print(error)

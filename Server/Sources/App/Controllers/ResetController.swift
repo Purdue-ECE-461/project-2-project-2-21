@@ -34,7 +34,7 @@ struct ResetController: RouteCollection {
 
             for document in documents {
                 let id = document.id
-                _ : [String: String] = try await client.deleteDocument(path: "packages/\(id)").get()
+                let _ : [String: String] = try await client.deleteDocument(path: "packages/\(id)").get()
             }
 
             return Response(status: .ok, headers: headers, body: .init())

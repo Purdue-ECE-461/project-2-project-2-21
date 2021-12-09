@@ -38,7 +38,7 @@ struct FirestorePackageHistoryItem: Codable {
                 isAdmin: isAdmin
             ),
             date: date,
-            packageMetadata: ProjectPackage.Metadata(
+            packageMetadata: Metadata(
                 name: name,
                 version: version,
                 id: id
@@ -51,13 +51,13 @@ struct FirestorePackageHistoryItem: Codable {
 struct PackageHistoryItem: Content, Codable {
     let user: AuthenticationRequest.User
     let date: String
-    let packageMetadata: ProjectPackage.Metadata
+    let packageMetadata: Metadata
     let action: PackageHistoryItem.Action
 
     // TODO: Remove this init
     init(user: AuthenticationRequest.User,
          date: String,
-         packageMetadata: ProjectPackage.Metadata,
+         packageMetadata: Metadata,
          action: Action) {
         self.user = user
         self.date = date
@@ -75,7 +75,7 @@ struct PackageHistoryItem: Content, Codable {
     init(from decoder: Decoder) throws {
         let containter = try decoder.container(keyedBy: CodingKeys.self)
         self.user = try containter.decode(AuthenticationRequest.User.self, forKey: .user)
-        self.packageMetadata = try containter.decode(ProjectPackage.Metadata.self, forKey: .packageMetadata)
+        self.packageMetadata = try containter.decode(Metadata.self, forKey: .packageMetadata)
         self.action = try containter.decode(PackageHistoryItem.Action.self, forKey: .action)
         self.date = try containter.decode(String.self, forKey: .date)
     }
@@ -113,7 +113,7 @@ extension PackageHistoryItem {
             isAdmin: true
         ),
         date: Date().ISO8601Format(),
-        packageMetadata: ProjectPackage.Metadata(
+        packageMetadata: Metadata(
             name: "Underscore",
             version: "1.0.0",
             id: "underscore"
@@ -128,7 +128,7 @@ extension PackageHistoryItem {
                 isAdmin: true
             ),
             date: Date().addingTimeInterval(-500).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"
@@ -141,7 +141,7 @@ extension PackageHistoryItem {
                 isAdmin: true
             ),
             date: Date().addingTimeInterval(-1000).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"
@@ -154,7 +154,7 @@ extension PackageHistoryItem {
                 isAdmin: true
             ),
             date: Date().addingTimeInterval(-1500).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"
@@ -167,7 +167,7 @@ extension PackageHistoryItem {
                 isAdmin: true
             ),
             date: Date().addingTimeInterval(-2000).ISO8601Format(),
-            packageMetadata: ProjectPackage.Metadata(
+            packageMetadata: Metadata(
                 name: "Underscore",
                 version: "1.0.0",
                 id: "underscore"
