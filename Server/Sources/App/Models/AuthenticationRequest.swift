@@ -75,7 +75,7 @@ extension AuthenticationRequest {
 extension AuthenticationRequest {
     static let mockAdmin = AuthenticationRequest(
         user: User(
-            name: "ece461defaultadmin",
+            name: "ece461defaultadminuser",
             isAdmin: true
         ),
         secret: Secret(
@@ -85,7 +85,7 @@ extension AuthenticationRequest {
 
     static let mockNonAdmin = AuthenticationRequest(
         user: User(
-            name: "ece461defaultnonadmin",
+            name: "ece461defaultnonadminuser",
             isAdmin: false
         ),
         secret: Secret(
