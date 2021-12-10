@@ -151,18 +151,6 @@ final class AppTests: XCTestCase {
 //        })
 //    }
 
-    func testCreateAuthToken() throws {
-        try app.test(.PUT, "authenticate", beforeRequest: { req in
-            let authRequest = AuthenticationRequest.mock
-            try req.content.encode(authRequest)
-            req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)
-        }, afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.headers.contentType, .json)
-            XCTAssertFalse(res.body.string.isEmpty)
-        })
-    }
-
     func testGETPackageHistoryByName() throws {
         try app.test(.GET, "package/byName/Underscore", beforeRequest: { req in
             req.headers.bearerAuthorization = BearerAuthorization(token: Environment.get("BEARER_TOKEN")!)

@@ -23,7 +23,7 @@ struct UserAuthenticator: AsyncMiddleware {
 
         // Determine if the request is attempting to create a bearer token.
         // If so, a user should not be subject to auth.
-        if isPostAuthenticate(request: request) {
+        if isPutAuthenticate(request: request) {
             return try await next.respond(to: request)
         }
 
@@ -39,12 +39,10 @@ struct UserAuthenticator: AsyncMiddleware {
 
     /// Checks if a request is attempting to create a bearer token. If so, a request does not need a bearer token.
     /// - Parameter request: The URL request.
-    /// - Returns: A boolean indicating if the request is a `POST` to the `authenticate` endpoint.
-    private func isPostAuthenticate(request: Request) -> Bool {
-        if request.method == .POST {
-            if request.route?.path.string == "authenticate" {
-                return true
-            }
+    /// - Returns: A boolean indicating if the request is a `PUT` to the `authenticate` endpoint.
+    private func isPutAuthenticate(request: Request) -> Bool {
+        if request.method == .PUT, request.route?.path.string == "authenticate" {
+            return true
         }
 
         return false

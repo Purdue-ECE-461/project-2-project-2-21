@@ -29,9 +29,6 @@ struct LoggingMiddleware: AsyncMiddleware {
 
         // Log the status into the database
         do {
-            let authPayload = try request.jwt.verify(as: AuthJWTPayload.self)
-            let user = AuthenticationRequest.User(name: authPayload.username, isAdmin: authPayload.isAdmin)
-
             guard let packageMetadata = await getPackageMetadata(request: request, previousResponse: response) else {
                 // If no package metadata, then we don't know what to log
                 return response
@@ -41,6 +38,9 @@ struct LoggingMiddleware: AsyncMiddleware {
                 // If no action, then we don't know what to log
                 return response
             }
+
+            let authPayload = try request.jwt.verify(as: AuthJWTPayload.self)
+            let user = AuthenticationRequest.User(name: authPayload.username, isAdmin: authPayload.isAdmin)
 
             let packageHistoryItem = PackageHistoryItem(
                 user: user,

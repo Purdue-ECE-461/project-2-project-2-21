@@ -42,31 +42,30 @@ final class AuthCreationTests: XCTestCase {
         XCTAssertEqual(auth.secret.password, "correcthorsebatterystaple123(!__+@**(A")
     }
 
-    func testCreateUser() throws {
-        try app.test(.POST, "authenticate", beforeRequest: { req in
-            try req.content.encode(AuthenticationRequest.new())
-        }, afterResponse: { res in
-            XCTAssertEqual(res.status, .created)
-            XCTAssertEqual(res.headers.contentType, .json)
-            print(res.body.string)
-        })
-    }
-
-    func testCreateExistingUser() throws {
-        try app.test(.POST, "authenticate", beforeRequest: { req in
-            try req.content.encode(AuthenticationRequest.mock)
-        }, afterResponse: { res in
-            XCTAssertEqual(res.status, .internalServerError)
-        })
-    }
-
-    func testPUTUserToken() throws {
+    func testPUTAdminUserToken() throws {
         try app.test(.PUT, "authenticate", beforeRequest: { req in
-            try req.content.encode(AuthenticationRequest.mock)
+            try req.content.encode(AuthenticationRequest.mockAdmin)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
-            print(res.body.string)
+        })
+    }
+
+    func testPUTNonAdminUserToken() throws {
+        try app.test(.PUT, "authenticate", beforeRequest: { req in
+            try req.content.encode(AuthenticationRequest.mockNonAdmin)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.headers.contentType, .json)
+        })
+    }
+
+    func testPUTNotAUser() throws {
+        try app.test(.PUT, "authenticate", beforeRequest: { req in
+            try req.content.encode(AuthenticationRequest.new())
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertEqual(res.headers.contentType, .plainText)
         })
     }
 }
