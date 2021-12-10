@@ -31,7 +31,7 @@ struct UserAuthenticator: AsyncMiddleware {
               let token = request.headers.bearerAuthorization?.token,
               let firebaseToken: FSAuth = try? await client.getDocument(path: "users/\(authPayload.username)").get(),
               firebaseToken.fields?.token == token else {
-                  throw Abort(.unauthorized)
+                  return Response(status: .unauthorized)
               }
 
         return try await next.respond(to: request)
