@@ -27,14 +27,40 @@ struct UserAuthenticator: AsyncMiddleware {
             return try await next.respond(to: request)
         }
 
-        guard let authPayload = try? request.jwt.verify(as: AuthJWTPayload.self),
-              let token = request.headers.bearerAuthorization?.token,
-              let firebaseToken: FSAuth = try? await client.getDocument(path: "users/\(authPayload.username)").get(),
-              firebaseToken.fields?.token == token else {
-                  return Response(status: .unauthorized)
-              }
+        do {
+            guard let authPayload = try? request.jwt.verify(as: AuthJWTPayload.self) else {
+                return Response(status: .internalServerError)
+            }
 
-        return try await next.respond(to: request)
+            let token = request.headers.bearerAuthorization?.token
+            let firebaseToken: FSAuth = try await client.getDocument(path: "users/\(authPayload.username)").get()
+
+            if let givenToken = token,
+               let retrievedToken = firebaseToken.fields?.token,
+               givenToken == retrievedToken {
+                return try await next.respond(to: request)
+            }
+
+            // Error occurred
+            // swiftlint:disable line_length
+            Logger(label: "Unauthorized-Logger-Middleware")
+                .critical("Middleware bearer tokens don't match. Got \(token ?? ""), but expected \(firebaseToken.fields?.token ?? "").")
+            // swiftlint:enable line_length
+
+            return Response(
+                status: .unauthorized,
+                body: .init(string: "The given bearer token is invalid.")
+            )
+        } catch {
+            // Error occurred
+            Logger(label: "Unauthorized-Logger-Middleware")
+                .report(error: error)
+
+            return Response(
+                status: .unauthorized,
+                body: .init(string: "The given bearer token is invalid.")
+            )
+        }
     }
 
     /// Checks if a request is attempting to create a bearer token. If so, a request does not need a bearer token.
