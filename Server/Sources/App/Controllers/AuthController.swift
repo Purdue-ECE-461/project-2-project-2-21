@@ -11,7 +11,7 @@ import Vapor
 import VaporFirestore
 
 struct AuthController: RouteCollection {
-    
+
     private var app: Application
     private var client: FirestoreResource
 
@@ -56,16 +56,18 @@ struct AuthController: RouteCollection {
 
                 // Retreived credentials
                 let firebaseAuthPayload = try app.jwt.signers.verify(retreivedToken, as: AuthJWTPayload.self)
-                
+
                 guard firebaseAuthPayload.username == localPayload.username,
                       firebaseAuthPayload.password == localPayload.password,
                       firebaseAuthPayload.isAdmin == localPayload.isAdmin,
                       firebaseAuthPayload.expiration == localPayload.expiration else {
                           let localToken = try? app.jwt.signers.sign(localPayload)
-                          
+
                           // User is not authorized
+                          // swiftlint:disable line_length
                           Logger(label: "Unauthorized-Logger")
                               .critical("Bearer tokens don't match. Got \(localToken ?? "nil"), but expected \(retreivedToken).")
+                          // swiftlint:enable line_length
 
                           return Response(
                               status: .unauthorized,
@@ -73,7 +75,7 @@ struct AuthController: RouteCollection {
                               body: .init(string: "The given bearer token is invalid.")
                           )
                       }
-                
+
                 var jsonHeaders = HTTPHeaders()
                 jsonHeaders.add(name: .contentType, value: "application/json")
 
