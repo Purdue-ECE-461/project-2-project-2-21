@@ -28,5 +28,7 @@ jobs:
         pip install google-cloud-firestore
     - name: Analysing the code with pylint
       run: |
-        pylint $(find . -name "Scoring/**/*.py" | xargs)
-        pylint $(find . -name "ingest/**/*.py" | xargs)
+        cd Scoring
+        pylint $(find . -name "*.py" | xargs)
+        cd ../ingest
+        pylint $(find . -name "*.py" | xargs)
