@@ -29,7 +29,10 @@ struct UserAuthenticator: AsyncMiddleware {
 
         do {
             guard let authPayload = try? request.jwt.verify(as: AuthJWTPayload.self) else {
-                return Response(status: .internalServerError)
+                return Response(
+                    status: .unauthorized,
+                    body: .init(string: "The given bearer token is invalid.")
+                )
             }
 
             let token = request.headers.bearerAuthorization?.token
