@@ -7,6 +7,7 @@
 
 @testable import App
 import Foundation
+import JWT
 import XCTest
 import XCTVapor
 
