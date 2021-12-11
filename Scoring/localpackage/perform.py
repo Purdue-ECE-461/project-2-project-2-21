@@ -217,7 +217,7 @@ def get_license_score(repo):
         lic = base64.b64decode(repo.get_license().content.encode()).decode()
 
         if lic is not None:
-            
+
             mitlic_sub = re.search("(\\w+) License", lic)
             if mitlic_sub is not None:
                 mitlic = mitlic_sub.group(0)
@@ -233,7 +233,7 @@ def get_license_score(repo):
             if readme is not None:
                 logging.info("README file found")
                 result = re.search("(\\w+) license", readme)
-                if result is not none:
+                if result is not None:
                     licensed = result.group(0)
                     if licensed is not None:
                         licensed = 1
