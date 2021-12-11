@@ -12,7 +12,7 @@ public func configure(_ app: Application) throws {
     )
 
     // Add HMAC with SHA-256 signer.
-    app.jwt.signers.use(.hs256(key: "ece-461-project-2-secret-key"))
+    app.jwt.signers.use(.hs256(key: Environment.get("SIGNING_SECRET")!))
 
     app.middleware.use(UserAuthenticator(app: app), at: .beginning)
     app.middleware.use(LoggingMiddleware(app: app))
