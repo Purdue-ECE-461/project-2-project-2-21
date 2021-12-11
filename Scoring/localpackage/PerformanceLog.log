@@ -1,0 +1,4 @@
+INFO:root:Responsiveness calculation started..
+INFO:root:Repository API call
+ERROR:root:Repository API call unsuccessful
+INFO:root:Responsiveness score calculation success

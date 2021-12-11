@@ -1,0 +1,7 @@
+PyGithub
+GitPython
+python-dateutil
+requests
+beautifulsoup4
+datetime
+google-cloud-firestore
